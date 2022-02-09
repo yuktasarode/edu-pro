@@ -8,6 +8,7 @@ import fire from "./Fire";
 import Homepage from "./components/homepage/homepage.jsx";
 import LoginStud from "./components/student/login.jsx";
 import SigninStud from "./components/student/signin.jsx";
+import StudDashboard from "./components/student/dashboard.jsx";
 
 import "./App.css";
 
@@ -89,6 +90,16 @@ class App extends Component {
                 path="/signinStud"
                 element={
                   <SigninStud
+                    accounts={this.state.accounts}
+                    contract={this.state.contract}
+                  />
+                }
+              />
+
+              <Route
+                path="/studDashboard"
+                element={
+                  <StudDashboard
                     accounts={this.state.accounts}
                     contract={this.state.contract}
                   />
