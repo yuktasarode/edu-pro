@@ -168,6 +168,9 @@ export default class Signin extends Component {
                 <MenuItem value={"Electronics Engineering"}>
                   Electronics Engineering
                 </MenuItem>
+                <MenuItem value={"Electronics and Tele–Communication Engineering"}>
+                Electronics and Tele–Communication Engineering
+                </MenuItem>
                 <MenuItem value={"Information Technology"}>
                   Information Technology
                 </MenuItem>

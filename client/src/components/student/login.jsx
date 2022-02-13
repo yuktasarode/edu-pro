@@ -76,7 +76,7 @@ export default class Login extends Component {
           </Button>
         </form>
 
-        {this.state.logged_in ? <Navigate to="/studDashboard" /> : null}
+        {this.state.logged_in ? <Navigate to="/dashboardStud" /> : null}
 
       </div>
     );

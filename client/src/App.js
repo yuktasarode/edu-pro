@@ -9,7 +9,11 @@ import fire from "./Fire";
 import Homepage from "./components/homepage/homepage.jsx";
 import LoginStud from "./components/student/login.jsx";
 import SigninStud from "./components/student/signin.jsx";
-import StudDashboard from "./components/student/dashboard.jsx";
+import DashboardStud from "./components/student/dashboard.jsx";
+import DashboardTeacher from "./components/teacher/dashboard.jsx";
+import LoginTeacher from "./components/teacher/login.jsx";
+import SigninTeacher from "./components/teacher/signin.jsx";
+
 
 import "./App.css";
 
@@ -103,9 +107,39 @@ class App extends Component {
               />
 
               <Route
-                path="/studDashboard"
+                path="/loginTeacher"
                 element={
-                  <StudDashboard
+                  <LoginTeacher
+                    accounts={this.state.accounts}
+                    contract={this.state.contract}
+                  />
+                }
+              />
+
+              <Route
+                path="/signinTeacher"
+                element={
+                  <SigninTeacher
+                    accounts={this.state.accounts}
+                    contract={this.state.contract}
+                  />
+                }
+              />
+
+              <Route
+                path="/dashboardStud"
+                element={
+                  <DashboardStud
+                    accounts={this.state.accounts}
+                    contract={this.state.contract}
+                  />
+                }
+              />
+              
+              <Route
+                path="/dashboardTeacher"
+                element={
+                  <DashboardTeacher
                     accounts={this.state.accounts}
                     contract={this.state.contract}
                   />
