@@ -81,7 +81,8 @@ class Homepage extends Component {
                   <Grid container justifyContent="center">
                     <Avatar style={{ width: "200px", height: "200px" }}>
                       <img
-                        src="https://cdn-icons-png.flaticon.com/512/3829/3829933.png"
+                        // src="https://cdn-icons-png.flaticon.com/512/3829/3829933.png"
+                        src="https://ak.picdn.net/shutterstock/videos/5920229/thumb/1.jpg"
                         alt=""
                         style={{ height: "200px", margin: "10px" }}
                       />
@@ -134,9 +135,10 @@ class Homepage extends Component {
                   <Grid container justifyContent="center">
                     <Avatar style={{ width: "200px", height: "200px" }}>
                       <img
-                        src="https://cdn-icons-png.flaticon.com/512/906/906175.png"
+                        // src="https://cdn-icons-png.flaticon.com/512/906/906175.png"
+                        src="https://myrepublica.nagariknetwork.com/uploads/media/ddddd_20201129155325.jpg"
                         alt=""
-                        style={{ height: "150px", margin: "0px" }}
+                        style={{ height: "200px", margin: "0px" }}
                       />
                     </Avatar>
                   </Grid>
