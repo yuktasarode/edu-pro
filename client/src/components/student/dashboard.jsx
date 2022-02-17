@@ -202,6 +202,8 @@ class StudentDashBoard extends Component {
               creatorPhoto={course.creatorPhoto}
               name={course.name}
               id={course.id}
+              teacher={false}
+              student={true}
               style={{ marginRight: 30, marginBottom: 30 }} 
             />)
           })}

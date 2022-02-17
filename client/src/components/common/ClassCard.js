@@ -1,12 +1,14 @@
 import { IconButton } from "@material-ui/core";
 import { AssignmentIndOutlined, FolderOpenOutlined } from "@material-ui/icons";
-import React from "react";
-import { useNavigate } from "react-router-dom";
+import React,{useState} from "react";
+import { useNavigate,Navigate, useParams } from "react-router-dom";
 import "./ClassCard.css";
-function ClassCard({ name, creatorName, creatorPhoto, id, style }) {
+function ClassCard({ name, creatorName, creatorPhoto, id,teacher,student, style }) {
   const history = useNavigate();
+  
+  const [cardClicked,clickCard ]= useState(false);
   const goToClass = () => {
-    history.push(`/class/${id}`);
+    clickCard(true);
   };
   return (
     <div className="classCard" style={style} onClick={goToClass}>
@@ -24,7 +26,10 @@ function ClassCard({ name, creatorName, creatorPhoto, id, style }) {
           <AssignmentIndOutlined />
         </IconButton>
       </div>
+      {cardClicked && teacher?<Navigate to={`/classTeacher/${id} `}/>:null}
+      {cardClicked && student?<Navigate to={`/classStudent/${id} `}/>:null}
     </div>
+    
   );
 }
 export default ClassCard;

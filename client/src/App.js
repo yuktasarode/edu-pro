@@ -13,7 +13,10 @@ import DashboardStud from "./components/student/dashboard.jsx";
 import DashboardTeacher from "./components/teacher/dashboard.jsx";
 import LoginTeacher from "./components/teacher/login.jsx";
 import SigninTeacher from "./components/teacher/signin.jsx";
-
+import Stream from "./components/teacher/Stream/Stream";
+import Hoc from "./components/teacher/Stream/Hoc";
+import HocTeacher from "./components/teacher/Stream/Hoc";
+import HocStudent from "./components/student/Stream/Hoc";
 
 import "./App.css";
 
@@ -30,24 +33,23 @@ class App extends Component {
 
       // Get the contract instance.
       const networkId = await web3.eth.net.getId();
-      console.log("networkId",networkId);
+      console.log("networkId", networkId);
       const deployedNetwork = StudentRegisterContract.networks[networkId];
-    
+
       console.log(deployedNetwork);
       const instance = new web3.eth.Contract(
         StudentRegisterContract.abi,
-        deployedNetwork.address,
+        deployedNetwork.address
       );
-      
 
       // Set web3, accounts, and contract to the state, and then proceed with an
       // example of interacting with the contract's methods.
       this.setState({ web3, accounts, contract: instance });
-      console.log("hello",this.state.contract);
+      console.log("hello", this.state.contract);
     } catch (error) {
       // Catch any errors for any of the above operations.
       alert(
-        `Failed to load web3, accounts, or contract. Check console for details.`,
+        `Failed to load web3, accounts, or contract. Check console for details.`
       );
       console.error(error);
     }
@@ -74,7 +76,6 @@ class App extends Component {
       <div className="App">
         <BrowserRouter>
           <div>
-            
             <Routes>
               <Route
                 path="/"
@@ -135,11 +136,29 @@ class App extends Component {
                   />
                 }
               />
-              
+
               <Route
                 path="/dashboardTeacher"
                 element={
                   <DashboardTeacher
+                    accounts={this.state.accounts}
+                    contract={this.state.contract}
+                  />
+                }
+              />
+              <Route
+                path="/classTeacher/:id"
+                element={
+                  <HocTeacher
+                    accounts={this.state.accounts}
+                    contract={this.state.contract}
+                  />
+                }
+              />
+              <Route
+                path="/classStudent/:id"
+                element={
+                  <HocStudent
                     accounts={this.state.accounts}
                     contract={this.state.contract}
                   />
