@@ -1,4 +1,5 @@
 pragma solidity ^0.5.16;
+pragma experimental ABIEncoderV2;
 
 
 /**
@@ -28,13 +29,13 @@ contract StudentRegister{
     struct course{
         string courseID;
         address teacherWA;
-        address[84] students;
+        address[] students;
         uint studentCount;
         
     }
     struct mark{
-        uint[10] quiz;
-        uint[10] assignment;
+        uint[] quiz;
+        uint[] assignment;
         uint attendance;
 
 
@@ -63,6 +64,7 @@ contract StudentRegister{
     mapping (address=>student) public students;
     mapping(address=>teacher) public teachers;
     mapping(string=>course) public  courses;
+    
     uint numStudents;
     //only for registering a new student
     mapping(uint=>student) newStudents;    
@@ -91,15 +93,110 @@ contract StudentRegister{
         // //generate and return invite code 
 
     }
-
-    function joinCourse(address studentWA,string memory  courseID) public{
+    string public courseName = "";
+    function joinCourse(address studentWA,string memory courseID) public{
         course storage c= courses[courseID];
-        c.students[c.studentCount++]=studentWA;
+        c.students.push(studentWA);
+        c.studentCount++;
         student storage s= students[studentWA];
         s.student_courses.push(c);
+        courseName=s.student_courses[0].courseID;
+        uint[] memory myquiz;
+        uint[] memory assign;
+        uint attendance = 0;
+        mark memory myMark = mark(myquiz,assign,attendance);
+        s.student_marks.push(myMark);
+        
 
 
     } 
+    
+    
+    
+     
+    function getStudentMarks(address studentWA, string memory courseID) public view returns(uint[] memory,uint[] memory,uint) {
+        
+        student storage s = students[studentWA];        
+        uint index = 0;
+        for(uint i = 0;i<s.student_courses.length;i++ )
+        {
+
+            if(keccak256(bytes(s.student_courses[i].courseID)) == keccak256(bytes(courseID))) {
+               index = i;
+               
+               break;
+           }
+
+        }
+        uint quizLen= s.student_marks[index].quiz.length;
+        uint assignLen = s.student_marks[index].assignment.length;
+        uint[] memory quizMrk = new uint[](quizLen);
+        uint[] memory assignMrk = new uint[](assignLen);
+
+        for(uint i = 0; i<quizLen;i++){
+            quizMrk[i]=s.student_marks[index].quiz[i];  
+        }
+
+        for(uint i = 0; i<assignLen;i++){
+            assignMrk[i]=s.student_marks[index].assignment[i];  
+        }
+
+        
+        return(quizMrk ,assignMrk , s.student_marks[index].attendance);
+    }
+    
+    function inputMrks(address studentWA, string memory courseID, string memory mrksType,uint mrks) public{
+        student storage s = students[studentWA];
+        
+        uint indexi = 0;
+        for(uint i = 0;i<s.student_courses.length;i++ ){
+           if(keccak256(bytes(s.student_courses[i].courseID)) == keccak256(bytes(courseID))) {
+               indexi = i;
+               break;
+           }
+        }
+
+        if(keccak256(bytes(mrksType)) == keccak256(bytes("quiz"))){
+            s.student_marks[indexi].quiz.push(mrks);
+            
+        }
+
+        else{
+            s.student_marks[indexi].assignment.push(mrks);
+        }
+
+    }
+
+    function getStudentCourses(address studentWA) public view returns(string[] memory){
+        
+        student storage s = students[studentWA];
+        uint numOfCOurse = s.student_courses.length;
+        string[] memory coursesOfStudent = new string[](numOfCOurse);
+
+        for(uint i = 0;i<numOfCOurse;i++ ){
+          coursesOfStudent[i] = s.student_courses[i].courseID;
+              
+        }
+
+        return (coursesOfStudent);
+
+    }
+
+    function getTeacherCourse(address teacherWA) public view returns(string[] memory){
+
+        teacher storage t = teachers[teacherWA];
+        uint numOfCOurse = t.teacher_courses.length;
+        string[] memory coursesOfteacher = new string[](numOfCOurse);
+
+        for(uint i = 0;i<numOfCOurse;i++ ){
+          coursesOfteacher[i] = t.teacher_courses[i].courseID;
+              
+        }
+
+        return (coursesOfteacher);
+    }
+
+    
    
     
             

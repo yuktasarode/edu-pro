@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import SimpleStorageContract from "./contracts/SimpleStorage.json";
+import edTokenContract from "./contracts/edToken.json";
 import StudentRegisterContract from "./contracts/StudentRegister.json";
 import getWeb3 from "./getWeb3";
 
@@ -21,7 +21,7 @@ import HocStudent from "./components/student/Stream/Hoc";
 import "./App.css";
 
 class App extends Component {
-  state = { storageValue: 0, web3: null, accounts: null, contract: null };
+  state = { storageValue: 0, web3: null, accounts: null, contract: null,contractToken:null };
 
   componentDidMount = async () => {
     try {
@@ -42,9 +42,17 @@ class App extends Component {
         deployedNetwork.address
       );
 
+      const deployedNetworkToken = edTokenContract.networks[networkId];
+
+      console.log(deployedNetworkToken);
+      const instanceToken = new web3.eth.Contract(
+        edTokenContract.abi,
+        deployedNetworkToken.address
+      );
+
       // Set web3, accounts, and contract to the state, and then proceed with an
       // example of interacting with the contract's methods.
-      this.setState({ web3, accounts, contract: instance });
+      this.setState({ web3, accounts, contract: instance, contractToken : instanceToken });
       console.log("hello", this.state.contract);
     } catch (error) {
       // Catch any errors for any of the above operations.
@@ -83,6 +91,7 @@ class App extends Component {
                   <Homepage
                     accounts={this.state.accounts}
                     contract={this.state.contract}
+                    contractToken={this.state.contractToken}
                   />
                 }
               />
@@ -93,6 +102,7 @@ class App extends Component {
                   <LoginStud
                     accounts={this.state.accounts}
                     contract={this.state.contract}
+                    contractToken={this.state.contractToken}
                   />
                 }
               />
@@ -103,6 +113,7 @@ class App extends Component {
                   <SigninStud
                     accounts={this.state.accounts}
                     contract={this.state.contract}
+                    contractToken={this.state.contractToken}
                   />
                 }
               />
@@ -113,6 +124,7 @@ class App extends Component {
                   <LoginTeacher
                     accounts={this.state.accounts}
                     contract={this.state.contract}
+                    contractToken={this.state.contractToken}
                   />
                 }
               />
@@ -123,6 +135,7 @@ class App extends Component {
                   <SigninTeacher
                     accounts={this.state.accounts}
                     contract={this.state.contract}
+                    contractToken={this.state.contractToken}
                   />
                 }
               />
@@ -133,6 +146,7 @@ class App extends Component {
                   <DashboardStud
                     accounts={this.state.accounts}
                     contract={this.state.contract}
+                    contractToken={this.state.contractToken}
                   />
                 }
               />
@@ -143,6 +157,7 @@ class App extends Component {
                   <DashboardTeacher
                     accounts={this.state.accounts}
                     contract={this.state.contract}
+                    contractToken={this.state.contractToken}
                   />
                 }
               />
@@ -152,6 +167,7 @@ class App extends Component {
                   <HocTeacher
                     accounts={this.state.accounts}
                     contract={this.state.contract}
+                    contractToken={this.state.contractToken}
                   />
                 }
               />
@@ -161,6 +177,7 @@ class App extends Component {
                   <HocStudent
                     accounts={this.state.accounts}
                     contract={this.state.contract}
+                    contractToken={this.state.contractToken}
                   />
                 }
               />
