@@ -10,6 +10,7 @@
     "@mui/material": "^5.4.2",
     "bootstrap": "3.4.1",
     "firebase": "^4.8.0",
+    "g-sheets-api": "^2.1.2",
     "history": "4.10.1",
     "next": "9.4.4",
     "react": "^17.0.2",
