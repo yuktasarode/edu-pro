@@ -15,12 +15,13 @@ class Stream extends React.Component {
       course_id: null,
       course_title: null,
       course_teacher: null,
+      fetchDone: false,
     };
   }
 
-  fetchAnnouncements = () => {
+  fetchAnnouncements = async () => {
     const ref = fire.database().ref();
-    ref.once("value", (userSnapshot) => {
+    await ref.once("value", (userSnapshot) => {
       userSnapshot
         .child("Courses")
         .child(this.state.course_id)
@@ -30,11 +31,21 @@ class Stream extends React.Component {
             title: snap.child("Title").val(),
             link: snap.child("Link").val(),
             isGrade: snap.child("isGrade").val(),
+            date: snap.child("Date").val(),
           };
           this.setState({ announcements: [...this.state.announcements, temp] });
         });
     });
+    await this.sortAnnouncements();
+    this.setState({ fetchDone: true });
   };
+  sortAnnouncements = () => {
+    this.state.announcements.sort((a, b) => {
+      return new Date(b.date) - new Date(a.date);
+    });
+    console.log("Announcements:", this.state.announcements);
+  };
+
   reloadPage = () => {
     window.location.reload();
   };
@@ -87,7 +98,7 @@ class Stream extends React.Component {
         </section>
         <section className="container mt-5">
           <div className="row">
-            {this.state.announcements.length > 0
+            {this.state.fetchDone
               ? this.state.announcements.map((announcement) => (
                   <Announcement
                     title={announcement.title}

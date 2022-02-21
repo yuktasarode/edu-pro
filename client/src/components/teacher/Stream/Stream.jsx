@@ -25,12 +25,13 @@ class Stream extends React.Component {
       course_id: null,
       course_title: null,
       course_teacher: null,
+      fetchDone: false,
     };
   }
 
-  fetchAnnouncements = () => {
+  fetchAnnouncements = async () => {
     const ref = fire.database().ref();
-    ref.once("value", (userSnapshot) => {
+    await ref.once("value", (userSnapshot) => {
       userSnapshot
         .child("Courses")
         .child(this.state.course_id)
@@ -40,15 +41,26 @@ class Stream extends React.Component {
             title: snap.child("Title").val(),
             link: snap.child("Link").val(),
             isGrade: snap.child("isGrade").val(),
+            date: snap.child("Date").val(),
           };
           this.setState({ announcements: [...this.state.announcements, temp] });
         });
     });
+
+    await this.sortAnnouncements();
+    this.setState({ fetchDone: true });
+  };
+
+  sortAnnouncements = () => {
+    this.state.announcements.sort((a, b) => {
+      return new Date(b.date) - new Date(a.date);
+    });
+    console.log("Announcements:", this.state.announcements);
   };
   reloadPage = () => {
     window.location.reload();
   };
-  componentDidMount = () => {
+  componentDidMount = async () => {
     this.setState({ course_id: this.props.id.slice(0, -4) });
     const ref = fire.database().ref();
     ref.once("value", (userSnapshot) => {
@@ -69,10 +81,9 @@ class Stream extends React.Component {
           .val(),
       });
     });
-    this.fetchAnnouncements();
+    await this.fetchAnnouncements();
   };
 
-  printUpcomingWork = () => {};
   addAnnouncementToggle = () => {
     this.setState((prevState) => {
       return {
@@ -90,21 +101,22 @@ class Stream extends React.Component {
 
   handleAnnouncementChange = (event) => {
     this.setState({
-      announcement: { title: event.target.value, link: "", isGrade: false },
+      announcement: {
+        title: event.target.value,
+        link: "",
+        isGrade: false,
+        date: new Date(),
+      },
     });
   };
   handleAnnouncementSubmit = (event) => {
-    // this.setState({
-    //   announcements:[...this.state.announcements,this.state.announcement]
-    // })
-
     fire
       .database()
       .ref()
       .child("Courses")
       .child(this.state.course_id)
       .child("announcements")
-      
+
       .child(this.state.announcement.title)
       .child("Title")
       .set(this.state.announcement.title);
@@ -115,10 +127,18 @@ class Stream extends React.Component {
       .child("Courses")
       .child(this.state.course_id)
       .child("announcements")
-      
       .child(this.state.announcement.title)
       .child("Link")
       .set("");
+    fire
+      .database()
+      .ref()
+      .child("Courses")
+      .child(this.state.course_id)
+      .child("announcements")
+      .child(this.state.announcement.title)
+      .child("Date")
+      .set(this.state.announcement.date.toString());
 
     console.log(this.state.announcements);
     this.addAnnouncementToggle();
@@ -137,6 +157,7 @@ class Stream extends React.Component {
       title: this.state.title,
       link: this.state.link,
       isGrade: true,
+      date:new Date(),
     };
     console.log(this.state.quiz_type);
     console.log(obj);
@@ -147,9 +168,6 @@ class Stream extends React.Component {
         },
         () => console.log("Quiz array", this.state.quizzes)
       );
-      // this.setState({
-      //   announcements:[...this.state.announcements,announcement]
-      // })
       fire
         .database()
         .ref()
@@ -197,6 +215,15 @@ class Stream extends React.Component {
         .child(announcement.title)
         .child("isGrade")
         .set(announcement.isGrade);
+      fire
+        .database()
+        .ref()
+        .child("Courses")
+        .child(this.state.course_id)
+        .child("announcements")
+        .child(announcement.title)
+        .child("Date")
+        .set(announcement.date.toString());
     } else if (this.state.quiz_type == "feedback") {
       this.setState(
         {
@@ -204,10 +231,6 @@ class Stream extends React.Component {
         },
         () => console.log("Feedback array", this.state.feedbacks)
       );
-      // this.setState({
-      //   announcements:[...this.state.announcements,announcement]
-      // })
-
       fire
         .database()
         .ref()
@@ -255,6 +278,15 @@ class Stream extends React.Component {
         .child(announcement.title)
         .child("isGrade")
         .set(announcement.isGrade);
+      fire
+        .database()
+        .ref()
+        .child("Courses")
+        .child(this.state.course_id)
+        .child("announcements")
+        .child(announcement.title)
+        .child("Date")
+        .set(announcement.date.toString());
     }
     this.reloadPage();
     this.addQuizFeedbackToggle();
@@ -455,7 +487,8 @@ class Stream extends React.Component {
                   </Button>
                 </Modal.Footer>
               </Modal>
-              {this.state.announcements.length > 0
+
+              {this.state.fetchDone
                 ? this.state.announcements.map((announcement) => (
                     <Announcement
                       title={announcement.title}
