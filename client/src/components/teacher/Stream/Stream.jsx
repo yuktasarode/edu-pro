@@ -494,6 +494,8 @@ class Stream extends React.Component {
                       title={announcement.title}
                       link={announcement.link}
                       grade={announcement.isGrade}
+                      id={this.state.course_id}
+                      
                     />
                   ))
                 : null}

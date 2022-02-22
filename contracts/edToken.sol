@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: GPL-3.0
-pragma solidity >=0.7.0 <0.9.0;
+pragma solidity ^0.5.16;
 //Safe Math Interface
 contract SafeMath {
     function safeAdd(uint a, uint b) public pure returns (uint c) {
@@ -33,7 +33,7 @@ contract EdToken is SafeMath {
     event Transfer(address indexed from, address indexed to, uint256 value);
     event Approval(address indexed owner, address indexed spender, uint256 value);
     constructor(string memory name_, string memory symbol_, uint256 totalSupply_, uint256
-    priceOfToken_) 
+    priceOfToken_) public 
     {
         _name = name_;
         _symbol = symbol_;
