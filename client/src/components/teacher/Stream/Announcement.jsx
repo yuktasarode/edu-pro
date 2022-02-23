@@ -47,7 +47,7 @@ class Announcement extends React.Component {
     const string1 = this.state.url.split("/d/");
     const string2 = string1[1].split("/edit");
     this.setState({ Id: string2[0] });
-    console.log(
+    console.log(  
       this.state.Id.localeCompare(
         "1PzHjYf1ayXuVgMGMMYTWrft8zoR50Ner-tiIcL6911g"
       )
@@ -65,6 +65,8 @@ class Announcement extends React.Component {
       (results) => {
         for (var i = 0; i < results.length; i++) {
           console.log(results[i].Score.split("/")[0]);
+          console.log(results[i].Address);
+          
         }
       },
       (error) => {

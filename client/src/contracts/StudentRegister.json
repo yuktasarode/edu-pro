@@ -15409,8 +15409,7 @@
     }
   },
   "schemaVersion": "3.4.4",
-  "updatedAt": "2022-02-22T05:18:07.991Z",
-  "networkType": "ethereum",
+  "updatedAt": "2022-02-23T13:47:20.454Z",
   "devdoc": {
     "methods": {},
     "title": "StudentRegister"

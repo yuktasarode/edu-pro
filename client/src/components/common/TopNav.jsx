@@ -12,40 +12,50 @@ import Menu from "@material-ui/core/Menu";
 import { fade } from "@material-ui/core/styles/colorManipulator";
 import { withStyles } from "@material-ui/core/styles";
 import MoreIcon from "@material-ui/icons/MoreVert";
-import { Grid, Avatar, Dialog, DialogTitle, DialogContent, DialogContentText, TextField, DialogActions, Button } from "@material-ui/core";
-import { Add, Apps } from "@material-ui/icons"
+import {
+  Grid,
+  Avatar,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogContentText,
+  TextField,
+  DialogActions,
+  Button,
+} from "@material-ui/core";
+import { Add, Apps } from "@material-ui/icons";
 
-const styles = theme => ({
+const styles = (theme) => ({
   root: {
-    width: "100%"
+    width: "100%",
   },
   grow: {
-    flexGrow: 1
+    flexGrow: 1,
   },
   menuButton: {
     marginLeft: -12,
-    marginRight: 20
+    marginRight: 20,
   },
   title: {
     display: "none",
     [theme.breakpoints.up("sm")]: {
-      display: "block"
-    }
+      display: "block",
+    },
   },
   search: {
     position: "relative",
     borderRadius: theme.shape.borderRadius,
     backgroundColor: fade(theme.palette.common.white, 0.15),
     "&:hover": {
-      backgroundColor: fade(theme.palette.common.white, 0.25)
+      backgroundColor: fade(theme.palette.common.white, 0.25),
     },
     marginRight: theme.spacing.unit * 2,
     marginLeft: 0,
     width: "100%",
     [theme.breakpoints.up("sm")]: {
       marginLeft: theme.spacing.unit * 3,
-      width: "auto"
-    }
+      width: "auto",
+    },
   },
   searchIcon: {
     width: theme.spacing.unit * 9,
@@ -54,11 +64,11 @@ const styles = theme => ({
     pointerEvents: "none",
     display: "flex",
     alignItems: "center",
-    justifyContent: "center"
+    justifyContent: "center",
   },
   inputRoot: {
     color: "inherit",
-    width: "100%"
+    width: "100%",
   },
   inputInput: {
     paddingTop: theme.spacing.unit,
@@ -68,51 +78,50 @@ const styles = theme => ({
     transition: theme.transitions.create("width"),
     width: "100%",
     [theme.breakpoints.up("md")]: {
-      width: 200
-    }
+      width: 200,
+    },
   },
   sectionDesktop: {
     display: "none",
     [theme.breakpoints.up("md")]: {
-      display: "flex"
-    }
+      display: "flex",
+    },
   },
   sectionMobile: {
     display: "flex",
     [theme.breakpoints.up("md")]: {
-      display: "none"
-    }
-  }
+      display: "none",
+    },
+  },
 });
 
 class TopNav extends React.Component {
-    constructor(props) {
-        super(props);
-      }
+  constructor(props) {
+    super(props);
+  }
   state = {
     anchorEl: null,
     mobileMoreAnchorEl: null,
-    codeEntered:"",
-    teacherName:"",
-    student:this.props.student,
-    openJoin:false,
-    openCode:false,
-    openCreate:false,
-    logout:false,
-    code:"",
-    courseName:"",
-    courseID:"",
+    codeEntered: "",
+    teacherName: "",
+    student: this.props.student,
+    openJoin: false,
+    openCode: false,
+    openCreate: false,
+    logout: false,
+    code: "",
+    courseName: "",
+    courseID: "",
   };
 
-  refreshPage = ()=>{
+  refreshPage = () => {
     window.location.reload();
- }
+  };
 
-  
-  firebaseset = async() => {
+  firebaseset = async () => {
     try {
       const { accounts, contract } = this.props;
-      
+
       fire
         .database()
         .ref()
@@ -140,106 +149,123 @@ class TopNav extends React.Component {
         .child("Teachers")
         .child(accounts[0])
         .child("courses")
-        .push().set(this.state.courseID);
-      
+        .push()
+        .set(this.state.courseID);
     } catch (fipu) {}
   };
 
-  createCode=() => {
+  createCode = () => {
     const { accounts, contract } = this.props;
     const random = Math.floor(1000 + Math.random() * 9000);
-    this.setState({code:this.state.courseID+random});
+    this.setState({ code: this.state.courseID + random });
 
-    const ref=fire.database().ref();
+    const ref = fire.database().ref();
     ref.once("value", (userSnapshot) => {
-      this.setState({teacherName:userSnapshot.child("Teachers").child(accounts[0]).child('name').val()});
+      this.setState({
+        teacherName: userSnapshot
+          .child("Teachers")
+          .child(accounts[0])
+          .child("name")
+          .val(),
+      });
       console.log(this.state);
     });
-  }
+  };
 
-
-  logout =(event)=>{
+  logout = (event) => {
     auth
       .signOut()
       .then(() => {
-        this.setState({logout:true});
+        this.setState({ logout: true });
       })
       .catch((error) => {
         alert(error);
       });
-
-  }
+  };
 
   sleep = (milliseconds) => {
-    return new Promise(resolve => setTimeout(resolve, milliseconds))
-  }
+    return new Promise((resolve) => setTimeout(resolve, milliseconds));
+  };
 
-  handleJoinOpen = event =>{
-    this.setState({openJoin:true});
-  }
+  handleJoinOpen = (event) => {
+    this.setState({ openJoin: true });
+  };
 
-  handleJoinClose = () =>{
-    this.setState({openJoin:false});
-  }
+  handleJoinClose = () => {
+    this.setState({ openJoin: false });
+  };
 
-  handleCreateOpen = event =>{
-    this.setState({openCreate:true});
-  }
+  handleCreateOpen = (event) => {
+    this.setState({ openCreate: true });
+  };
 
-  handleCreateClose = () =>{
-    this.setState({openCreate:false});
-  }
+  handleCreateClose = () => {
+    this.setState({ openCreate: false });
+  };
 
-  handleCreate = async() => {
+  handleCreate = async () => {
+    const { accounts, contract } = this.props;
     this.createCode();
-    this.setState({openCreate:false});
-    this.setState({openCode:true});
+    this.setState({ openCreate: false });
+    this.setState({ openCode: true });
     await this.sleep(1000);
     this.firebaseset();
-  }
+    await contract.methods
+      .createCourse(this.state.courseID, accounts[0])
+      .send({ from: accounts[0] });
+  };
 
-  joinClass = async() => {
-    this.setState({openJoin:false});
+  joinClass = async () => {
+    const { accounts, contract } = this.props;
+    this.setState({ openJoin: false });
     this.verifyCode();
     await this.sleep(1000);
     this.refreshPage();
-  }
+    await contract.methods
+      .joinCourse(accounts[0], this.state.codeEntered.slice(0,-4))
+      .send({ from: accounts[0] });
+  };
 
-  verifyCode = async() => {
+  verifyCode = async () => {
     const { accounts, contract } = this.props;
 
-    const course_code= this.state.codeEntered.substring(0,this.state.codeEntered.length-4);
+    const course_code = this.state.codeEntered.substring(
+      0,
+      this.state.codeEntered.length - 4
+    );
     console.log(course_code);
 
     const ref = fire.database().ref();
     var codeFirebase = "";
     await ref.once("value", (userSnapshot) => {
-      codeFirebase=userSnapshot.child("Courses").child(course_code).child('code').val();
+      codeFirebase = userSnapshot
+        .child("Courses")
+        .child(course_code)
+        .child("code")
+        .val();
     });
 
-    if(this.state.codeEntered===codeFirebase){
+    if (this.state.codeEntered === codeFirebase) {
       fire
-      .database()
-      .ref()
-      .child("Students")
-      .child(accounts[0])
-      .child("courses")
-      .push().set(course_code);
-    } 
-    else{
+        .database()
+        .ref()
+        .child("Students")
+        .child(accounts[0])
+        .child("courses")
+        .push()
+        .set(course_code);
+    } else {
       alert("Error! The code might be incorrect");
     }
-                              
-      
-  }
+  };
 
   handleCodeClose = () => {
-    console.log("State",this.state);
-    this.setState({openCode:false});
+    console.log("State", this.state);
+    this.setState({ openCode: false });
     this.refreshPage();
-  }
+  };
 
-  handleProfileMenuOpen = event => {
+  handleProfileMenuOpen = (event) => {
     this.setState({ anchorEl: event.currentTarget });
   };
 
@@ -248,7 +274,7 @@ class TopNav extends React.Component {
     this.handleMobileMenuClose();
   };
 
-  handleMobileMenuOpen = event => {
+  handleMobileMenuOpen = (event) => {
     this.setState({ mobileMoreAnchorEl: event.currentTarget });
   };
 
@@ -280,73 +306,81 @@ class TopNav extends React.Component {
 
     const renderJoinDialog = (
       <Dialog open={this.state.openJoin} onClose={this.handleJoinClose}>
-                <DialogTitle>Join Class</DialogTitle>
-                <DialogContent>
-                  <DialogContentText>
-                    To join a class, please enter the class code here.
-                  </DialogContentText>
-                  <TextField
-                    id="codeEntered" 
-                    label="Class Code"
-                    type="text" 
-                    variant="outlined"
-                    onChange={(e) => this.setState({ codeEntered: e.target.value })} 
-                  />
-                </DialogContent>
-                <DialogActions>
-                  <Button onClick={this.handleJoinClose}>Cancel</Button>
-                  <Button onClick={this.joinClass}>Join</Button>
-                </DialogActions>
-              </Dialog>
+        <DialogTitle>Join Class</DialogTitle>
+        <DialogContent>
+          <DialogContentText>
+            To join a class, please enter the class code here.
+          </DialogContentText>
+          <TextField
+            id="codeEntered"
+            label="Class Code"
+            type="text"
+            variant="outlined"
+            onChange={(e) => this.setState({ codeEntered: e.target.value })}
+          />
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={this.handleJoinClose}>Cancel</Button>
+          <Button onClick={this.joinClass}>Join</Button>
+        </DialogActions>
+      </Dialog>
     );
     const renderCreateDialog = (
       <Dialog open={this.state.openCreate} onClose={this.handleCreateClose}>
-                <DialogTitle>Create Class</DialogTitle>
-                <DialogContent>
-                <TextField
-                    id="courseName" 
-                    label="Course Name"
-                    type="text" 
-                    variant="outlined" 
-                    onChange={(e) => this.setState({ courseName: e.target.value })}
-                  /> <br/> <br/>
-                  <TextField
-                    id="courseId" 
-                    label="Course String"
-                    type="text" 
-                    variant="outlined" 
-                    onChange={(e) => this.setState({ courseID: e.target.value })}
-                  />
-                 
-                </DialogContent>
-                <DialogActions>
-                  <Button onClick={this.handleCreateClose}>Cancel</Button>
-                  <Button onClick={this.handleCreate}>Create</Button>
-                </DialogActions>
-              </Dialog>
+        <DialogTitle>Create Class</DialogTitle>
+        <DialogContent>
+          <TextField
+            id="courseName"
+            label="Course Name"
+            type="text"
+            variant="outlined"
+            onChange={(e) => this.setState({ courseName: e.target.value })}
+          />{" "}
+          <br /> <br />
+          <TextField
+            id="courseId"
+            label="Course String"
+            type="text"
+            variant="outlined"
+            onChange={(e) => this.setState({ courseID: e.target.value })}
+          />
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={this.handleCreateClose}>Cancel</Button>
+          <Button onClick={this.handleCreate}>Create</Button>
+        </DialogActions>
+      </Dialog>
     );
 
     const renderCodeDialog = (
       <Dialog open={this.state.openCode} onClose={this.handleCodeClose}>
-                <DialogTitle>Create Class</DialogTitle>
-                <DialogContent>
-                <DialogContentText>
-                    Share the following class code with your students
-                  </DialogContentText>
-                  
-                  <DialogTitle>{this.state.code} <Button
-                            onClick={() => {navigator.clipboard.writeText(this.state.code)}}
-        startIcon={<Avatar src={'https://static.vecteezy.com/system/resources/thumbnails/000/423/339/small/Multimedia__2850_29.jpg'} />}
-      ></Button>
-                  </DialogTitle> 
-                  
-                  
-                </DialogContent>
-                <DialogActions>
-                  <Button onClick={this.handleCodeClose}>Close</Button>
-                </DialogActions>
-              </Dialog>
-    )
+        <DialogTitle>Create Class</DialogTitle>
+        <DialogContent>
+          <DialogContentText>
+            Share the following class code with your students
+          </DialogContentText>
+
+          <DialogTitle>
+            {this.state.code}{" "}
+            <Button
+              onClick={() => {
+                navigator.clipboard.writeText(this.state.code);
+              }}
+              startIcon={
+                <Avatar
+                  src={
+                    "https://static.vecteezy.com/system/resources/thumbnails/000/423/339/small/Multimedia__2850_29.jpg"
+                  }
+                />
+              }
+            ></Button>
+          </DialogTitle>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={this.handleCodeClose}>Close</Button>
+        </DialogActions>
+      </Dialog>
+    );
 
     return (
       <div
@@ -368,24 +402,33 @@ class TopNav extends React.Component {
                 >
                   excelED
                 </Typography>
-                
+
                 <div />
                 <div className={classes.grow} />
                 <div className={classes.sectionDesktop}>
-
                   {this.state.student ? (
-                      <Tooltip title="Join Class">
-                  <IconButton aria-label="join-class" color="inherit" size="large" onClick={this.handleJoinOpen}>
+                    <Tooltip title="Join Class">
+                      <IconButton
+                        aria-label="join-class"
+                        color="inherit"
+                        size="large"
+                        onClick={this.handleJoinOpen}
+                      >
                         <Add />
-                </IconButton>
-              </Tooltip>
-                    ) : (
-                      <Tooltip title="Create Class">
-                  <IconButton aria-label="create-class" color="inherit" size="large" onClick={this.handleCreateOpen}>
+                      </IconButton>
+                    </Tooltip>
+                  ) : (
+                    <Tooltip title="Create Class">
+                      <IconButton
+                        aria-label="create-class"
+                        color="inherit"
+                        size="large"
+                        onClick={this.handleCreateOpen}
+                      >
                         <Add />
-                </IconButton>
-              </Tooltip>
-                    )}
+                      </IconButton>
+                    </Tooltip>
+                  )}
                   <IconButton
                     aria-owns={isMenuOpen ? "material-appbar" : undefined}
                     aria-haspopup="true"
@@ -407,28 +450,35 @@ class TopNav extends React.Component {
               </Toolbar>
             </AppBar>
             {renderMenu}
-            {this.state.student ? 
-           renderJoinDialog : renderCreateDialog }
+            {this.state.student ? renderJoinDialog : renderCreateDialog}
             {/* {renderMobileMenu} */}
             <Dialog open={this.state.openCode} onClose={this.handleCodeClose}>
-                <DialogTitle>Create Class</DialogTitle>
-                <DialogContent>
+              <DialogTitle>Create Class</DialogTitle>
+              <DialogContent>
                 <DialogContentText>
-                    Share the following class code with your students
-                  </DialogContentText>
-                  
-                  <DialogTitle>{this.state.code} <Button
-                            onClick={() => {navigator.clipboard.writeText(this.state.code)}}
-        startIcon={<Avatar src={'https://static.vecteezy.com/system/resources/thumbnails/000/423/339/small/Multimedia__2850_29.jpg'} />}
-      ></Button>
-                  </DialogTitle> 
-                  
-                  
-                </DialogContent>
-                <DialogActions>
-                  <Button onClick={this.handleCodeClose}>Close</Button>
-                </DialogActions>
-              </Dialog>
+                  Share the following class code with your students
+                </DialogContentText>
+
+                <DialogTitle>
+                  {this.state.code}{" "}
+                  <Button
+                    onClick={() => {
+                      navigator.clipboard.writeText(this.state.code);
+                    }}
+                    startIcon={
+                      <Avatar
+                        src={
+                          "https://static.vecteezy.com/system/resources/thumbnails/000/423/339/small/Multimedia__2850_29.jpg"
+                        }
+                      />
+                    }
+                  ></Button>
+                </DialogTitle>
+              </DialogContent>
+              <DialogActions>
+                <Button onClick={this.handleCodeClose}>Close</Button>
+              </DialogActions>
+            </Dialog>
           </Grid>
         </Grid>
         {this.state.logout ? <Navigate to="/" /> : null}
@@ -438,10 +488,7 @@ class TopNav extends React.Component {
 }
 
 TopNav.propTypes = {
-  classes: PropTypes.object.isRequired
+  classes: PropTypes.object.isRequired,
 };
 
 export default withStyles(styles)(TopNav);
-
-
-
