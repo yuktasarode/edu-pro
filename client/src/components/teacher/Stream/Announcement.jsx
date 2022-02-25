@@ -13,7 +13,7 @@ class Announcement extends React.Component {
       feedback_url: "",
     };
   }
-  
+
   fetchUrl = async () => {
     const ref = fire.database().ref();
     await ref.once("value", (userSnapshot) => {
@@ -45,7 +45,7 @@ class Announcement extends React.Component {
   };
 
   fetchScore = async () => {
-    const {contract,accounts} = this.props;
+    const { contract, accounts } = this.props;
     await this.fetchUrl();
     const string1 = this.state.url.split("/d/");
     const string2 = string1[1].split("/edit");
@@ -63,42 +63,29 @@ class Announcement extends React.Component {
       returnAllResults: false,
     };
     var addressStudent = [];
-    var marksStudent =[];
+    var marksStudent = [];
     await GSheetReader(
       options,
       (results) => {
-        
         for (var i = 0; i < results.length; i++) {
           console.log(results[i].Address);
           console.log(results[i].Score.split("/")[0]);
           addressStudent.push(results[i].Address);
-          marksStudent.push(parseInt(results[i].Score.split("/")[0])); 
-                  
+          marksStudent.push(parseInt(results[i].Score.split("/")[0]));
         }
-        
       },
       (error) => {
         console.log(error);
       }
     );
     await contract.methods
-            .inputMrks(
-              addressStudent,
-              this.props.id,
-              marksStudent
-            )
-            .send({ from: accounts[0] });
+      .inputMrks(addressStudent, this.props.id, marksStudent)
+      .send({ from: accounts[0] });
   };
-  // callStoreMarks = async() =>{
-  //   await contract.methods
-  //           .inputMrks(
-  //             addressStudent,
-  //             this.props.id,
-  //             marksStudent
-  //           )
-  //           .send({ from: accounts[0] });
 
-  // };
+  fetchRatings = () => {
+    console.log("In feedback rating function");
+  };
   render() {
     return (
       <>
@@ -107,6 +94,9 @@ class Announcement extends React.Component {
           <p>{this.props.link}</p>
           {this.props.grade ? (
             <Button onClick={this.fetchScore}>Grade</Button>
+          ) : null}
+          {this.props.feedback ? (
+            <Button onClick={this.fetchRatings}>Collect Feedback</Button>
           ) : null}
         </div>
       </>

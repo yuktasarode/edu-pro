@@ -41,6 +41,7 @@ class Stream extends React.Component {
             title: snap.child("Title").val(),
             link: snap.child("Link").val(),
             isGrade: snap.child("isGrade").val(),
+            isFeedback: snap.child("isFeedback").val(),
             date: snap.child("Date").val(),
           };
           this.setState({ announcements: [...this.state.announcements, temp] });
@@ -156,8 +157,9 @@ class Stream extends React.Component {
     const announcement = {
       title: this.state.title,
       link: this.state.link,
-      isGrade: true,
-      date:new Date(),
+      isGrade: false,
+      isFeedback: true,
+      date: new Date(),
     };
     console.log(this.state.quiz_type);
     console.log(obj);
@@ -214,7 +216,17 @@ class Stream extends React.Component {
         .child("announcements")
         .child(announcement.title)
         .child("isGrade")
-        .set(announcement.isGrade);
+        .set(true);
+      fire
+        .database()
+        .ref()
+        .child("Courses")
+        .child(this.state.course_id)
+        .child("announcements")
+        .child(announcement.title)
+        .child("isFeedback")
+        .set(false);
+
       fire
         .database()
         .ref()
@@ -277,7 +289,17 @@ class Stream extends React.Component {
         .child("announcements")
         .child(announcement.title)
         .child("isGrade")
-        .set(announcement.isGrade);
+        .set(false);
+        fire
+        .database()
+        .ref()
+        .child("Courses")
+        .child(this.state.course_id)
+        .child("announcements")
+        .child(announcement.title)
+        .child("isFeedback")
+        .set(true);
+       
       fire
         .database()
         .ref()
@@ -494,10 +516,10 @@ class Stream extends React.Component {
                       title={announcement.title}
                       link={announcement.link}
                       grade={announcement.isGrade}
+                      feedback={announcement.isFeedback}
                       id={this.state.course_id}
                       contract={this.props.contract}
                       accounts={this.props.accounts}
-                      
                     />
                   ))
                 : null}
