@@ -72,7 +72,7 @@ class Announcement extends React.Component {
           console.log(results[i].Address);
           console.log(results[i].Score.split("/")[0]);
           addressStudent.push(results[i].Address);
-          marksStudent.push(results[i].Score.split("/")[0]); 
+          marksStudent.push(parseInt(results[i].Score.split("/")[0])); 
                   
         }
         

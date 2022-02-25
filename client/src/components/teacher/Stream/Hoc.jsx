@@ -7,8 +7,9 @@ function Hoc(props) {
 
   return (
     <div>
-      <Stream id={id} contract={this.props.contract}
-        accounts={this.props.accounts} />
+      <Stream id={id} 
+        contract={props.contract}
+        accounts={props.accounts} />
     </div>
   );
 }
