@@ -221,9 +221,6 @@ class TopNav extends React.Component {
     this.verifyCode();
     await this.sleep(1000);
     this.refreshPage();
-    await contract.methods
-      .joinCourse(accounts[0], this.state.codeEntered.slice(0,-4))
-      .send({ from: accounts[0] });
   };
 
   verifyCode = async () => {
@@ -254,6 +251,9 @@ class TopNav extends React.Component {
         .child("courses")
         .push()
         .set(course_code);
+      await contract.methods
+        .joinCourse(accounts[0], this.state.codeEntered.slice(0, -4))
+        .send({ from: accounts[0] });
     } else {
       alert("Error! The code might be incorrect");
     }
