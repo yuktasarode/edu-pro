@@ -495,7 +495,7 @@ class Stream extends React.Component {
                       link={announcement.link}
                       grade={announcement.isGrade}
                       id={this.state.course_id}
-                      contracts={this.props.contracts}
+                      contract={this.props.contract}
                       accounts={this.props.accounts}
                       
                     />

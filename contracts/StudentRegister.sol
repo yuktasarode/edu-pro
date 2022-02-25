@@ -145,25 +145,27 @@ contract StudentRegister{
         return(quizMrk ,assignMrk , s.student_marks[index].attendance);
     }
     
-    function inputMrks(address studentWA, string memory courseID, string memory mrksType,uint mrks) public{
-        student storage s = students[studentWA];
+    function inputMrks(address[] memory studentWA, string memory courseID,uint[] memory mrks) public{
+        
         
         uint indexi = 0;
-        for(uint i = 0;i<s.student_courses.length;i++ ){
-           if(keccak256(bytes(s.student_courses[i].courseID)) == keccak256(bytes(courseID))) {
-               indexi = i;
-               break;
-           }
-        }
+        for(uint j=0;j<studentWA.length;j++){
+            student storage s = students[studentWA[j]];
+            for(uint i = 0;i<s.student_courses.length;i++ )
+            {
+                if(keccak256(bytes(s.student_courses[i].courseID)) == keccak256(bytes(courseID))) {
+                    indexi = i;
+                    break;
+                }
+            }
 
-        if(keccak256(bytes(mrksType)) == keccak256(bytes("quiz"))){
-            s.student_marks[indexi].quiz.push(mrks);
+            s.student_marks[indexi].quiz.push(mrks[j]);
             
+        
         }
+        
 
-        else{
-            s.student_marks[indexi].assignment.push(mrks);
-        }
+        
 
     }
 

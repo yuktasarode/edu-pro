@@ -13,6 +13,7 @@ class Announcement extends React.Component {
       feedback_url: "",
     };
   }
+  
   fetchUrl = async () => {
     const ref = fire.database().ref();
     await ref.once("value", (userSnapshot) => {
@@ -42,7 +43,9 @@ class Announcement extends React.Component {
       url: this.state.quiz_url ? this.state.quiz_url : this.state.feedback_url,
     });
   };
+
   fetchScore = async () => {
+    const {contract,accounts} = this.props;
     await this.fetchUrl();
     const string1 = this.state.url.split("/d/");
     const string2 = string1[1].split("/edit");
@@ -59,28 +62,43 @@ class Announcement extends React.Component {
       sheetName: "Form responses 1", // if sheetName is supplied, this will take precedence over sheetNumber
       returnAllResults: false,
     };
-
+    var addressStudent = [];
+    var marksStudent =[];
     await GSheetReader(
       options,
       (results) => {
+        
         for (var i = 0; i < results.length; i++) {
-          console.log(results[i].Score.split("/")[0]);
           console.log(results[i].Address);
-          await contract.methods
-            .inputMrks(
-              results[i].Address,
-              this.props.id,
-              "quiz",
-              results[i].Score.split("/")[0]
-            )
-            .send({ from: accounts[0] });
+          console.log(results[i].Score.split("/")[0]);
+          addressStudent.push(results[i].Address);
+          marksStudent.push(results[i].Score.split("/")[0]); 
+                  
         }
+        
       },
       (error) => {
         console.log(error);
       }
     );
+    await contract.methods
+            .inputMrks(
+              addressStudent,
+              this.props.id,
+              marksStudent
+            )
+            .send({ from: accounts[0] });
   };
+  // callStoreMarks = async() =>{
+  //   await contract.methods
+  //           .inputMrks(
+  //             addressStudent,
+  //             this.props.id,
+  //             marksStudent
+  //           )
+  //           .send({ from: accounts[0] });
+
+  // };
   render() {
     return (
       <>
