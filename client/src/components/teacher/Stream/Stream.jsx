@@ -520,6 +520,7 @@ class Stream extends React.Component {
                       id={this.state.course_id}
                       contract={this.props.contract}
                       accounts={this.props.accounts}
+                      contractToken={this.props.contractToken}
                     />
                   ))
                 : null}

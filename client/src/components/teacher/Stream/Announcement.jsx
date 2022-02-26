@@ -83,8 +83,51 @@ class Announcement extends React.Component {
       .send({ from: accounts[0] });
   };
 
-  fetchRatings = () => {
-    console.log("In feedback rating function");
+  fetchRatings = async () => {
+    const { contract, accounts, contractToken } = this.props;
+    var teacher_rating = 0;
+    await this.fetchUrl();
+    const string1 = this.state.url.split("/d/");
+    const string2 = string1[1].split("/edit");
+    this.setState({ Id: string2[0] });
+    console.log(
+      this.state.Id.localeCompare(
+        "1PzHjYf1ayXuVgMGMMYTWrft8zoR50Ner-tiIcL6911g"
+      )
+    );
+    const options = {
+      apiKey: "AIzaSyBRr22JbJlVXmpbAkliWkZ6YfzgPbiZID0",
+      sheetId: this.state.Id,
+      sheetNumber: 1,
+      sheetName: "Form responses 1", // if sheetName is supplied, this will take precedence over sheetNumber
+      returnAllResults: false,
+    };
+    await GSheetReader(
+      options,
+      (results) => {
+        var total_rating = 0;
+        var columns = 0;
+
+        for (var i = 0; i < results.length; i++) {
+          columns = 0;
+          var res = Object.values(results[i]);
+          for (var j = 0; j < res.length; j++) {
+            if (res[j].length === 1) {
+              columns++;
+              total_rating += parseInt(res[j]);
+            }
+          }
+        }
+        teacher_rating = Math.round(total_rating / (results.length * columns));
+      },
+      (error) => {
+        console.log(error);
+      }
+    );
+    const manager = await contractToken.methods._deployer().call();
+    await contractToken.methods
+      .transfer(accounts[0], teacher_rating)
+      .send({ from: manager });
   };
   render() {
     return (

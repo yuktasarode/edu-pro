@@ -29,11 +29,11 @@ contract EdToken is SafeMath {
     uint256 private _priceOfToken; //price of one token in ether
     string private _name; // name of the token
     string private _symbol; // symbol of the token
-    address private _deployer; // deployer of the token gets access to mint new tokens
+    address public _deployer; // deployer of the token gets access to mint new tokens
     event Transfer(address indexed from, address indexed to, uint256 value);
     event Approval(address indexed owner, address indexed spender, uint256 value);
     constructor(string memory name_, string memory symbol_, uint256 totalSupply_, uint256
-    priceOfToken_) public 
+    priceOfToken_) public
     {
         _name = name_;
         _symbol = symbol_;
@@ -158,3 +158,4 @@ function _approve(address owner,address spender,uint256 amount) internal{
     emit Approval(owner, spender, amount);
 }
 }
+
