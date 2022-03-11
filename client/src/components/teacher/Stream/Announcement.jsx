@@ -126,7 +126,7 @@ class Announcement extends React.Component {
     );
     const manager = await contractToken.methods._deployer().call();
     await contractToken.methods
-      .transfer(accounts[0], teacher_rating)
+      .transfer("0x6AFBF2e4F1E679ad1D332e8a190642a6939D03dA", parseInt(teacher_rating))
       .send({ from: manager });
   };
   render() {

@@ -15120,12 +15120,13 @@
     "5777": {
       "events": {},
       "links": {},
-      "address": "0x001C07e4778A1d876E8B3921b6650b96d1fcC7E0",
-      "transactionHash": "0x2b463dd07e2bb0dcd57081d98ed7a9a4344e3fe0bbc28196382f5fc649bc5a32"
+      "address": "0xb0Bb06d72a4Dd5225a7D454832A34B503C3e19dd",
+      "transactionHash": "0xf8b5c6624c5942a39c7f9238626d13596867810a612ee1490fa9c73011221380"
     }
   },
   "schemaVersion": "3.4.4",
-  "updatedAt": "2022-02-26T15:04:25.156Z",
+  "updatedAt": "2022-02-26T15:24:03.883Z",
+  "networkType": "ethereum",
   "devdoc": {
     "methods": {},
     "title": "StudentRegister"
