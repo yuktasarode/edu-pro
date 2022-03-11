@@ -1,6 +1,7 @@
 import React from "react";
 import { fire } from "../../../Fire";
 import { Button } from "@material-ui/core";
+import getWeb3 from "../../../getWeb3";
 const GSheetReader = require("g-sheets-api");
 
 class Announcement extends React.Component {
@@ -45,7 +46,7 @@ class Announcement extends React.Component {
   };
 
   fetchScore = async () => {
-    const { contract, accounts } = this.props;
+    const { contract, accounts,contractToken } = this.props;
     await this.fetchUrl();
     const string1 = this.state.url.split("/d/");
     const string2 = string1[1].split("/edit");
@@ -64,25 +65,66 @@ class Announcement extends React.Component {
     };
     var addressStudent = [];
     var marksStudent = [];
+    const manager = await contractToken.methods._deployer().call();
+    var managerAdd=manager.toString();
+    
     await GSheetReader(
       options,
       (results) => {
+        
+          
+          // this.sleep(5000);
         for (var i = 0; i < results.length; i++) {
           console.log(results[i].Address);
           console.log(results[i].Score.split("/")[0]);
           addressStudent.push(results[i].Address);
           marksStudent.push(parseInt(results[i].Score.split("/")[0]));
+          //give tokens
+          
+
         }
       },
       (error) => {
         console.log(error);
       }
     );
-    await contract.methods
-      .inputMrks(addressStudent, this.props.id, marksStudent)
-      .send({ from: accounts[0] });
-  };
+    // const gasEstimate2 = await contract.methods.inputMrks(addressStudent, this.props.id, marksStudent).estimateGas({ from: managerAdd });
+    // await contract.methods
+    //   .inputMrks(addressStudent, this.props.id, marksStudent)
+    //   .send({ from: accounts[0],gasPrice: this.props.gasPrice, gas: gasEstimate2 },(err, res) => {
+    //     if (err) {
+    //       console.log(err);
+    //       return
+    //     }
+    //     console.log("Hash transaction: " + res);
+    // });
+    
+    // await contract.methods
+    //   .inputMrks(addressStudent, this.props.id, marksStudent)
+    //   .send({ from: accounts[0]});
 
+    
+    //token giving
+    for (var i = 0; i < addressStudent.length; i++) {
+      
+      //give tokens
+      
+      const gasEstimate = await contractToken.methods.transfer(addressStudent[i], parseInt(marksStudent[i])).estimateGas({ from: managerAdd });
+      
+      await contractToken.methods
+        .transfer(addressStudent[i], parseInt(marksStudent[i])).send({ from: managerAdd, gasPrice: this.props.gasPrice, gas: gasEstimate  },(err, res) => {
+          if (err) {
+            console.log(err);
+            return
+          }
+          console.log("Hash transaction: " + res);
+      });
+    }
+    
+  };
+  sleep = (milliseconds) => {
+    return new Promise(resolve => setTimeout(resolve, milliseconds))
+  }
   fetchRatings = async () => {
     const { contract, accounts, contractToken } = this.props;
     var teacher_rating = 0;
@@ -94,7 +136,9 @@ class Announcement extends React.Component {
       this.state.Id.localeCompare(
         "1PzHjYf1ayXuVgMGMMYTWrft8zoR50Ner-tiIcL6911g"
       )
+    
     );
+    console.log(this.state.Id);
     const options = {
       apiKey: "AIzaSyBRr22JbJlVXmpbAkliWkZ6YfzgPbiZID0",
       sheetId: this.state.Id,
@@ -119,15 +163,28 @@ class Announcement extends React.Component {
           }
         }
         teacher_rating = Math.round(total_rating / (results.length * columns));
+        console.log(teacher_rating);
       },
       (error) => {
         console.log(error);
       }
     );
     const manager = await contractToken.methods._deployer().call();
+    var managerAdd=manager.toString();
+    console.log(managerAdd);
+    // const web3 = await getWeb3();
+    // const gasPrice = await web3.eth.getGasPrice();
+    const gasEstimate = await contractToken.methods.transfer(accounts[0], parseInt(teacher_rating)).estimateGas({ from: managerAdd });
+    this.sleep(5000);
+    // console.log(gasPrice,gasEstimate);
     await contractToken.methods
-      .transfer("0x6AFBF2e4F1E679ad1D332e8a190642a6939D03dA", parseInt(teacher_rating))
-      .send({ from: manager });
+      .transfer(accounts[0], parseInt(teacher_rating)).send({ from: managerAdd, gasPrice: this.props.gasPrice, gas: gasEstimate  },(err, res) => {
+        if (err) {
+          console.log(err);
+          return
+        }
+        console.log("Hash transaction: " + res);
+    });
   };
   render() {
     return (

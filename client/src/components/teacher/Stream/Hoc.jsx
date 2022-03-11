@@ -12,6 +12,8 @@ function Hoc(props) {
         contract={props.contract}
         accounts={props.accounts}
         contractToken={props.contractToken}
+        gasPrice ={props.gasPrice}
+        
       />
     </div>
   );

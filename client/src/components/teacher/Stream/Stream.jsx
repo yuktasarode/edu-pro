@@ -521,6 +521,8 @@ class Stream extends React.Component {
                       contract={this.props.contract}
                       accounts={this.props.accounts}
                       contractToken={this.props.contractToken}
+                      gasPrice = {this.props.gasPrice}
+                      
                     />
                   ))
                 : null}

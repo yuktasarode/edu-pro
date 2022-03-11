@@ -21,12 +21,14 @@ import HocStudent from "./components/student/Stream/Hoc";
 import "./App.css";
 
 class App extends Component {
-  state = { storageValue: 0, web3: null, accounts: null, contract: null,contractToken:null };
+  state = { storageValue: 0, web3: null, accounts: null, contract: null,contractToken:null,gasPrice:null };
 
   componentDidMount = async () => {
     try {
       // Get network provider and web3 instance.
       const web3 = await getWeb3();
+      const gasPrice = await web3.eth.getGasPrice();
+      
 
       // Use web3 to get the user's accounts.
       const accounts = await web3.eth.getAccounts();
@@ -52,8 +54,13 @@ class App extends Component {
 
       // Set web3, accounts, and contract to the state, and then proceed with an
       // example of interacting with the contract's methods.
-      this.setState({ web3, accounts, contract: instance, contractToken : instanceToken });
+      //privatekey of deployer
+      web3.eth.accounts.wallet.add('0x4a9805d2f20d5853d5396a6dc388bb3ddb56ee17c5f3fd73fcf5d95242ecf7b7');
+      this.setState({ web3, accounts, contract: instance, contractToken : instanceToken,gasPrice:gasPrice});
       console.log("hello", this.state.contract);
+      
+      
+     
     } catch (error) {
       // Catch any errors for any of the above operations.
       alert(
@@ -158,6 +165,7 @@ class App extends Component {
                     accounts={this.state.accounts}
                     contract={this.state.contract}
                     contractToken={this.state.contractToken}
+                    
                   />
                 }
               />
@@ -168,6 +176,8 @@ class App extends Component {
                     accounts={this.state.accounts}
                     contract={this.state.contract}
                     contractToken={this.state.contractToken}
+                    gasPrice ={this.state.gasPrice}
+                    
                   />
                 }
               />
@@ -178,6 +188,8 @@ class App extends Component {
                     accounts={this.state.accounts}
                     contract={this.state.contract}
                     contractToken={this.state.contractToken}
+                    gasPrice ={this.state.gasPrice}
+                    
                   />
                 }
               />
