@@ -55,7 +55,7 @@ class App extends Component {
       // Set web3, accounts, and contract to the state, and then proceed with an
       // example of interacting with the contract's methods.
       //privatekey of deployer
-      web3.eth.accounts.wallet.add('0x4a9805d2f20d5853d5396a6dc388bb3ddb56ee17c5f3fd73fcf5d95242ecf7b7');
+      web3.eth.accounts.wallet.add('0x28abf38cf65d8ad0f57369388b6f7a0a9304a19a18b84fdbd224ca312c6a4037');
       this.setState({ web3, accounts, contract: instance, contractToken : instanceToken,gasPrice:gasPrice});
       console.log("hello", this.state.contract);
       
@@ -165,7 +165,7 @@ class App extends Component {
                     accounts={this.state.accounts}
                     contract={this.state.contract}
                     contractToken={this.state.contractToken}
-                    
+                    gasPrice ={this.state.gasPrice}
                   />
                 }
               />

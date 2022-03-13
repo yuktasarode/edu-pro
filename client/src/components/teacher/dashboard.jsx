@@ -22,9 +22,19 @@ import ListItem from "@material-ui/core/ListItem";
 import ListItemText from "@material-ui/core/ListItemText";
 
 import TopNav from "../common/TopNav.jsx";
+import Switch from '@mui/material/Switch';
 import {fire} from "../../Fire.js";
 import ClassCard from "../common/ClassCard";
 import PlaylistAddCheck from "@material-ui/icons/PlaylistAddCheck"
+import Table from '@mui/material/Table';
+import TableBody from '@mui/material/TableBody';
+import TableCell from '@mui/material/TableCell';
+import TableContainer from '@mui/material/TableContainer';
+import TableHead from '@mui/material/TableHead';
+import TableRow from '@mui/material/TableRow';
+import Paper from '@mui/material/Paper';
+import { Modal } from "react-bootstrap";
+
 
 class TeacherDashBoard extends Component {
   constructor(props) {
@@ -35,8 +45,20 @@ class TeacherDashBoard extends Component {
     profilepic: "",
     teacherName: "",
     student: false,
+    hasRequests:false,
     address: "",
     courses: [],
+    verifier: false,
+    showRequests:false,
+    requestsArray:[],
+  };
+
+  showRequestsToggle = () => {
+    this.setState((prevState) => {
+      return {
+        showRequests: !prevState.showRequests,
+      };
+    });
   };
   profile = async () => {
     const { accounts, contract } = this.props;
@@ -44,7 +66,50 @@ class TeacherDashBoard extends Component {
     const ref=fire.database().ref();
 
     ref.once("value", (userSnapshot) => {
+      userSnapshot.child("Teachers").child(accounts[0]).child('verifyRequests').forEach((userSnapshot) => {
+        
+
+        ref.once("value", (snap) => {
+
+          if(snap.child("Research").child(userSnapshot.val()).child('status').val()===false){
+
+            var str="";
+
+            var address=[];
+
+            snap.child("Research").child(userSnapshot.val()).child('members').val().map((val,i)=>{
+              str+=val.id+" ";
+              address.push(val.address);
+            })
+
+              const temp={
+                "doi": userSnapshot.val(),
+                "title":snap.child("Research").child(userSnapshot.val()).child('title').val(),
+                "link":snap.child("Research").child(userSnapshot.val()).child('link').val(),
+                "authors": snap.child("Research").child(userSnapshot.val()).child('members').val(),
+                "idString": str,
+                "memAddress":address,
+              }
+                console.log("Temp",temp);
+                this.setState({hasRequest:true});
+      
+                  this.setState(prevState => ({
+                    requestsArray: [...prevState.requestsArray, temp]
+                  }));
+                }
+              });
+            
+          });                          
+    });
+
+
+
+    ref.once("value", (userSnapshot) => {
       this.setState({teacherName:userSnapshot.child("Teachers").child(accounts[0]).child('name').val()});
+    });
+
+    ref.once("value", (userSnapshot) => {
+      this.setState({verifier:userSnapshot.child("Teachers").child(accounts[0]).child('verifier').val()});
     });
 
     ref.once("value", (userSnapshot) => {
@@ -65,6 +130,74 @@ class TeacherDashBoard extends Component {
         });
           });                          
     });
+  };
+
+  verifyClicked=async(doi,address)=>{
+
+    const { accounts, contract, contractToken, gasPrice } = this.props;
+    //update db
+    fire
+        .database()
+        .ref()
+        .child("Research")
+        .child(doi)
+        .child("status")
+        .set(true);
+    //send token
+
+
+
+    const manager = await contractToken.methods._deployer().call();
+    var managerAdd=manager.toString();
+    console.log(managerAdd);
+    // const web3 = await getWeb3();
+    // const gasPrice = await web3.eth.getGasPrice();
+    for (var i = 0; i < address.length; i++) {
+      
+      //give tokens
+      const gasEstimate = await contractToken.methods.transfer(address[i], 5).estimateGas({ from: managerAdd });
+      
+      await contractToken.methods
+        .transfer(address[i], 5).send({ from: managerAdd, gasPrice: gasPrice, gas: gasEstimate  },(err, res) => {
+          if (err) {
+            console.log(err);
+            return
+          }
+          console.log("Hash transaction: " + res);
+      });
+    }
+    
+    const gasEstimate = await contractToken.methods.transfer(accounts[0], 1).estimateGas({ from: managerAdd });
+      
+      await contractToken.methods
+        .transfer(accounts[0], 1).send({ from: managerAdd, gasPrice: gasPrice, gas: gasEstimate  },(err, res) => {
+          if (err) {
+            console.log(err);
+            return
+          }
+          console.log("Hash transaction: " + res);
+      });
+    
+    alert("Verified");
+    this.refreshPage();
+  }
+
+  refreshPage = () => {
+    window.location.reload();
+  };
+
+  handleChange = (event) => {
+    this.setState({verifier:event.target.checked});
+    const { accounts, contract } = this.props;
+    
+
+    fire
+        .database()
+        .ref()
+        .child("Teachers")
+        .child(accounts[0])
+        .child("verifier")
+        .set(event.target.checked);
   };
 
   
@@ -155,9 +288,96 @@ class TeacherDashBoard extends Component {
         startIcon={<Avatar src={'https://static.vecteezy.com/system/resources/thumbnails/000/423/339/small/Multimedia__2850_29.jpg'} />}
       ></Button>
                           </Typography>
-                          
-                          
+                          <br></br>
+
+                          <Typography>
+                            Research Paper Verifier
+                          </Typography>
+
+                          <Switch
+                            checked={this.state.verifier}
+                            onChange={this.handleChange}
+                            inputProps={{ 'aria-label': 'controlled' }}
+                          />
+                           <hr></hr>
+
+                  {this.state.verifier ? (
+                          <List style={{ textAlign: "center" }}>
+                     
+                        <ListItem
+                          button
+                          style={{ leftMargin:"0px", width: "100px", color: "#3F51B5" }}
+                          onClick={this.showRequestsToggle}
+                        >
+                          <ListItemText>
+                            
+                              <Typography variant="subtitle1">
+                                View Requests
+                              </Typography>
+                           
+                          </ListItemText>
+                        </ListItem>
+                        
+                      </List>
+                  ) : null}
                         </Grid>
+
+                        <Modal
+                show={this.state.showRequests}
+                animation={false}
+                style={{minWidth:600}}
+              >
+              
+                <Modal.Header>
+                  <Modal.Title>Your Papers</Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                <TableContainer component={Paper}>
+                    <Table sx={{ minWidth: 350 }} aria-label="simple table">
+                      <TableHead>
+                        <TableRow>
+                          <TableCell align="center"><b>Paper Title</b></TableCell>
+                          <TableCell align="center"><b>Link</b></TableCell>
+                          <TableCell align="center"><b>Members</b></TableCell>
+                          <TableCell align="center"><b></b></TableCell>
+                        </TableRow>
+                      </TableHead>
+                      <TableBody>
+                        {this.state.requestsArray.map((row) => (
+                          <TableRow
+                            key={row.title}
+                            sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
+                          >
+                            {/* <TableCell component="th" scope="row" align="center"> */}
+                            <TableCell align="center">
+                              {row.title}
+                            </TableCell>
+                            <TableCell align="center" ><a href={row.link}>View Paper </a></TableCell>
+                            <TableCell align="center" >
+                              {row.idString}</TableCell>
+                            <TableCell align="center" >
+                              <Button onClick={()=>this.verifyClicked(row.doi,row.memAddress)}>
+                                Verify
+                              </Button>
+                            </TableCell>
+                          </TableRow>
+                        ))}
+                      </TableBody>
+                    </Table>
+                  </TableContainer>
+                </Modal.Body>
+                <Modal.Footer>
+                  <Button
+                    variant="secondary"
+                    onClick={this.showRequestsToggle}
+                  >
+                    Close
+                  </Button>
+                </Modal.Footer>
+              </Modal>
+            
+
+
 
                         
                       </Grid>

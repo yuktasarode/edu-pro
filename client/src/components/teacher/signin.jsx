@@ -63,6 +63,13 @@ export default class Signin extends Component {
         .child(accounts[0])
         .child("dept")
         .set(this.state.dept);
+      fire
+        .database()
+        .ref()
+        .child("Teachers")
+        .child(accounts[0])
+        .child("verifier")
+        .set(false);
     } catch (fipu) {}
   };
 
