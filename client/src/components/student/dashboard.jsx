@@ -158,35 +158,35 @@ class StudentDashBoard extends Component {
         .database()
         .ref()
         .child("Research")
-        .child(this.state.doi)
+        .child(this.state.doi.toString().replace(".","").replace("/",""))
         .child("title")
         .set(this.state.rpTitle);
     fire
         .database()
         .ref()
         .child("Research")
-        .child(this.state.doi)
+        .child(this.state.doi.toString().replace(".","").replace("/",""))
         .child("link")
         .set(this.state.rpLink);
     fire
         .database()
         .ref()
         .child("Research")
-        .child(this.state.doi)
+        .child(this.state.doi.toString().replace(".","").replace("/",""))
         .child("members")
         .set(this.state.members);
     fire
         .database()
         .ref()
         .child("Research")
-        .child(this.state.doi)
+        .child(this.state.doi.toString().replace(".","").replace("/",""))
         .child("verifierAccount")
         .set(this.state.verifierAddress);
     fire
         .database()
         .ref()
         .child("Research")
-        .child(this.state.doi)
+        .child(this.state.doi.toString().replace(".","").replace("/",""))
         .child("status")
         .set(false);
     
@@ -197,7 +197,7 @@ class StudentDashBoard extends Component {
         .child(this.state.verifierAddress)
         .child("verifyRequests")
         .push()
-        .set(this.state.doi);
+        .set(this.state.doi.toString().replace(".","").replace("/",""));
     fire
         .database()
         .ref()
@@ -205,7 +205,7 @@ class StudentDashBoard extends Component {
         .child(accounts[0])
         .child("researchPapers")
         .push()
-        .set(this.state.doi);
+        .set(this.state.doi.toString().replace(".","").replace("/",""));
 
   }
 
@@ -477,7 +477,7 @@ class StudentDashBoard extends Component {
                         label="Enter Research Paper DOI"
                         value={this.state.doi}
                         onChange={(event) => {
-                          this.setState({ doi: event.target.value });
+                          this.setState({ doi: event.target.value.toString().replace(".","").replace("/","") });
                         }}
                         style={{marginBottom:"20px"}}
                         fullWidth

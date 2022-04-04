@@ -88,16 +88,16 @@ class Announcement extends React.Component {
         console.log(error);
       }
     );
-    // const gasEstimate2 = await contract.methods.inputMrks(addressStudent, this.props.id, marksStudent).estimateGas({ from: managerAdd });
-    // await contract.methods
-    //   .inputMrks(addressStudent, this.props.id, marksStudent)
-    //   .send({ from: accounts[0],gasPrice: this.props.gasPrice, gas: gasEstimate2 },(err, res) => {
-    //     if (err) {
-    //       console.log(err);
-    //       return
-    //     }
-    //     console.log("Hash transaction: " + res);
-    // });
+    const gasEstimate2 = await contract.methods.inputMrks(addressStudent, this.props.id, marksStudent).estimateGas({ from: managerAdd });
+    await contract.methods
+      .inputMrks(addressStudent, this.props.id, marksStudent)
+      .send({ from: accounts[0],gasPrice: this.props.gasPrice, gas: gasEstimate2 },(err, res) => {
+        if (err) {
+          console.log(err);
+          return
+        }
+        console.log("Hash transaction: " + res);
+    });
     
     // await contract.methods
     //   .inputMrks(addressStudent, this.props.id, marksStudent)
@@ -120,6 +120,7 @@ class Announcement extends React.Component {
           console.log("Hash transaction: " + res);
       });
     }
+    alert("Graded successfully!");
     
   };
   sleep = (milliseconds) => {
@@ -185,13 +186,14 @@ class Announcement extends React.Component {
         }
         console.log("Hash transaction: " + res);
     });
+    alert("Feedback collected successfully!");
   };
   render() {
     return (
       <>
         <div className="border pt-4 px-4 pb-5">
           <p>{this.props.title}</p>
-          <p>{this.props.link}</p>
+          <p><a href={this.props.link}>{this.props.link}</a></p>
           {this.props.grade ? (
             <Button onClick={this.fetchScore}>Grade</Button>
           ) : null}
