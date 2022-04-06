@@ -103,20 +103,32 @@ class Announcement extends React.Component {
     
     var studentAnswer = [];
    
-    
+    var flagRes;
     await GSheetReader(
       options,
-      (results) => {
+      async (results) => {
         
           //continue 6422
         
-        console.log(results)
+        flagRes=results;
+      },
+      (error) => {
+        console.log(error);
+      }
+    );
+      console.log(flagRes)
         console.log(this.state.stdResp)
         
-        var returnResult2=[]
+        const returnResult2=new Array(this.state.stdResp.length).fill(0)
+        
+        console.log(returnResult2);
+        // 1 2 3 4
+        // a + a + a
+        // b c a
+
         for (var i = 1; i <= this.state.noOfQuest; i++) {
           
-          var answer1=results[0][i]
+          var answer1=flagRes[0][i]
           console.log(answer1)
           var lengthOfSR= Object.keys(this.state.stdResp[0]).length - this.state.noOfQuest +i -1
           console.log(lengthOfSR)
@@ -132,11 +144,10 @@ class Announcement extends React.Component {
           }
 
           console.log(studentAnswer)
-          axios.post(`http://localhost:3001/uploadModel`, { answer: answer1, studentAnswer: studentAnswer }) .then(res => {
-          console.log(res);
-          console.log(res.data);})
-
-          axios.get('http://localhost:3001/bert') .then(res => {
+          let res=await axios.post(`http://localhost:3001/uploadModel`, { answer: answer1, studentAnswer: studentAnswer });
+          console.log("after first axios")
+          res = await axios.get('http://localhost:3001/bert') 
+          console.log("after second axios")
           console.log(res.data)
           var scores = res.data.split("\r\n")
           
@@ -144,12 +155,15 @@ class Announcement extends React.Component {
           scores.pop()
           console.log(scores)
           var baseMrk=this.state.SubjMrks/4;
+          console.log(baseMrk);
+
 
           for(var i =0;i<scores.length;i++){
 
           
             if(parseFloat(scores[i])>=0.95 ){
               returnResult2[i]+=4 * baseMrk
+              
               
             }
             else if(parseFloat(scores[i])>=0.80){
@@ -164,22 +178,19 @@ class Announcement extends React.Component {
             else{
               returnResult2[i]+=0
             }
+            console.log(returnResult2[i])
           
           }
           
           console.log(scores)
 
 
-          })
+          
+          
 
         } //for loop closes
-
-        this.setState({returnResult:returnResult2});
-      },
-      (error) => {
-        console.log(error);
-      }
-    );
+        console.log(returnResult2);
+        return (returnResult2);
 
 
 
@@ -212,63 +223,68 @@ class Announcement extends React.Component {
     // this.sleep(60000);
     await GSheetReader(
       options,
-      (results) => {
+      async (results) => {
         
           
           // this.sleep(5000);
         this.setState({stdResp:results})
-        console.log(this.state.returnResult)
-        this.fetchSubjectScore().then(()=>{
         
-          this.sleep(80000);
-          for (var i = 0; i < results.length; i++) {
-            console.log(results[i].Address);
-            console.log(results[i].Score.split("/")[0]);
-            addressStudent.push(results[i].Address.toString());
-            marksStudent.push(parseInt(results[i].Score.split("/")[0])+this.state.returnResult[i]);
-            //give tokens
-            console.log(marksStudent[i])
-            
+        const returnValue =await this.fetchSubjectScore();
+        console.log(returnValue);
+        // this.setState({returnResult:returnValue});
 
-          }
-          console.log(marksStudent)
-        });
-      },
-      (error) => {
-        console.log(error);
-      }
-    );
-    const gasEstimate2 = await contract.methods.inputMrks(addressStudent, this.props.id, marksStudent).estimateGas({ from: managerAdd });
-    await contract.methods
-      .inputMrks(addressStudent, this.props.id, marksStudent)
-      .send({ from: accounts[0],gasPrice: this.props.gasPrice, gas: gasEstimate2 },(err, res) => {
-        if (err) {
-          console.log(err);
-          return
+        for (var i = 0; i < results.length; i++) {
+          console.log(results[i].Address);
+          console.log(results[i].Score.split("/")[0]);
+          addressStudent.push(results[i].Address.toString());
+          marksStudent.push(parseInt(results[i].Score.split("/")[0])+returnValue[i]);
+          //give tokens
+          console.log(marksStudent[i])
+          
+
         }
-        console.log("Hash transaction: " + res);
-    });
+        console.log(marksStudent)
+
+        const gasEstimate2 = await contract.methods.inputMrks(addressStudent, this.props.id, marksStudent).estimateGas({ from: managerAdd });
+        await contract.methods
+          .inputMrks(addressStudent, this.props.id, marksStudent)
+          .send({ from: accounts[0],gasPrice: this.props.gasPrice, gas: gasEstimate2 },(err, res) => {
+            if (err) {
+              console.log(err);
+              return
+            }
+            console.log("Hash transaction: " + res);
+        });
+
+         //token giving
+      for (var i = 0; i < addressStudent.length; i++) {
+        
+        //give tokens
+        
+        const gasEstimate = await contractToken.methods.transfer(addressStudent[i], parseInt(marksStudent[i])).estimateGas({ from: managerAdd });
+        
+        await contractToken.methods
+          .transfer(addressStudent[i], parseInt(marksStudent[i])).send({ from: managerAdd, gasPrice: this.props.gasPrice, gas: gasEstimate  },(err, res) => {
+            if (err) {
+              console.log(err);
+              return
+            }
+            console.log("Hash transaction: " + res);
+        });
+      }
+      alert("Graded successfully!");
+    
+
+        },
+        (error) => {
+          console.log(error);
+        }
+    );
+    
     
 
     
-    //token giving
-    for (var i = 0; i < addressStudent.length; i++) {
-      
-      //give tokens
-      
-      const gasEstimate = await contractToken.methods.transfer(addressStudent[i], parseInt(marksStudent[i])).estimateGas({ from: managerAdd });
-      
-      await contractToken.methods
-        .transfer(addressStudent[i], parseInt(marksStudent[i])).send({ from: managerAdd, gasPrice: this.props.gasPrice, gas: gasEstimate  },(err, res) => {
-          if (err) {
-            console.log(err);
-            return
-          }
-          console.log("Hash transaction: " + res);
-      });
-    }
-    alert("Graded successfully!");
-    
+   
   };
   sleep = (milliseconds) => {
     return new Promise(resolve => setTimeout(resolve, milliseconds))

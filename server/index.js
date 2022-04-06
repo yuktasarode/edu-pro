@@ -46,10 +46,10 @@ app.post('/uploadModel',(req,res)=>{
     }
     //file written successfully
   })
-
+  res.send('Uploaded Successfully')
 });
 
-app.get('/bert',(req, res)=>{
+app.get('/bert',async (req, res)=>{
     var dataToSend;
     // var baseDocument="My name is yukta. I am 22 year old. I am studying in VJTI. I am pursuing Information Technology course. I would get a BTECH degree after graduation.";
     // var documents=["Yukta is my name. I am studying in VJTI in Information Technology (Btech). My age is 22","I am Priyanshi Gupta from VJTI. I am studying Information Technology from VJTI, I am 22 yr old. My degree is Btech."];
@@ -65,15 +65,16 @@ app.get('/bert',(req, res)=>{
      console.log('Pipe data from python script ...');
      console.log(data.toString());
      dataToSend = data.toString();
+     res.send(dataToSend)
     
     });
     // sleep(5000)
     // in close event we are sure that stream from child process is closed
-    python.on('close', (code) => {
-    console.log(`child process close all stdio with code ${code}`);
-    // send data to browser
-    res.send(dataToSend)
-    });
+    // python.on('close', (code) => {
+    // console.log(`child process close all stdio with code ${code}`);
+    // // send data to browser
+    // res.send(dataToSend)
+    // });
 });
 
 app.listen(PORT, () => {
