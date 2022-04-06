@@ -26,6 +26,8 @@ class Stream extends React.Component {
       course_title: null,
       course_teacher: null,
       fetchDone: false,
+      ans_link:null,
+      sub_Quest:null
     };
   }
 
@@ -153,6 +155,7 @@ class Stream extends React.Component {
       title: this.state.title,
       link: this.state.link,
       res_link: this.state.res_link,
+      
     };
     const announcement = {
       title: this.state.title,
@@ -188,6 +191,26 @@ class Stream extends React.Component {
         .child(obj.title)
         .child("ResultLink")
         .set(obj.res_link);
+
+      fire
+        .database()
+        .ref()
+        .child("Courses")
+        .child(this.state.course_id)
+        .child("quizzes")
+        .child(obj.title)
+        .child("AnswerLink")
+        .set(this.state.ans_link);
+      
+      fire
+        .database()
+        .ref()
+        .child("Courses")
+        .child(this.state.course_id)
+        .child("quizzes")
+        .child(obj.title)
+        .child("NoOfQuest")
+        .set(this.state.sub_Quest);
 
       fire
         .database()
@@ -406,6 +429,26 @@ class Stream extends React.Component {
                         align="center"
                         style={{ fontSize: 15, marginBottom: 10 }}
                       >
+                        Enter No.of Subjective Questions
+                      </Typography>
+                      <TextField
+                        id="standard-basic"
+                        label="Enter Title"
+                        variant="standard"
+                        value={this.state.sub_Quest}
+                        onChange={(event) =>
+                          this.setState({ sub_Quest: event.target.value })
+                        }
+                        fullWidth
+                      />
+                    </div>
+
+
+                    <div>
+                      <Typography
+                        align="center"
+                        style={{ fontSize: 15, marginBottom: 10 }}
+                      >
                         Enter Form Link
                       </Typography>
                       <TextField
@@ -437,6 +480,26 @@ class Stream extends React.Component {
                         fullWidth
                       />
                     </div>
+
+                    <div>
+                      <Typography
+                        align="center"
+                        style={{ fontSize: 15, marginBottom: 10 }}
+                      >
+                        Enter Modal Answer Link
+                      </Typography>
+                      <TextField
+                        id="standard-basic"
+                        label="Enter Link"
+                        variant="standard"
+                        value={this.state.ans_link}
+                        onChange={(event) => {
+                          this.setState({ ans_link: event.target.value });
+                        }}
+                        fullWidth
+                      />
+                    </div>
+
 
                     <div style={{ marginTop: 20 }}>
                       <Button variant="secondary" type="submit">

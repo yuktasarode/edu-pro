@@ -1,5 +1,6 @@
 import React from "react";
 import { fire } from "../../../Fire";
+import axios from "axios";
 import { Button } from "@material-ui/core";
 import getWeb3 from "../../../getWeb3";
 const GSheetReader = require("g-sheets-api");
@@ -12,6 +13,9 @@ class Announcement extends React.Component {
       Id: "",
       quiz_url: "",
       feedback_url: "",
+      noOfQuest:"",
+      ans_url:"",
+      stdResp:[]
     };
   }
 
@@ -25,6 +29,25 @@ class Announcement extends React.Component {
           .child("quizzes")
           .child(this.props.title)
           .child("ResultLink")
+          .val(),
+      });
+      
+      this.setState({
+        ans_url: userSnapshot
+          .child("Courses")
+          .child(this.props.id)
+          .child("quizzes")
+          .child(this.props.title)
+          .child("AnswerLink")
+          .val(),
+      });
+      this.setState({
+        noOfQuest: userSnapshot
+          .child("Courses")
+          .child(this.props.id)
+          .child("quizzes")
+          .child(this.props.title)
+          .child("NoOfQuest")
           .val(),
       });
     });
@@ -43,6 +66,82 @@ class Announcement extends React.Component {
     this.setState({
       url: this.state.quiz_url ? this.state.quiz_url : this.state.feedback_url,
     });
+  };
+
+  fetchSubjectScore = async()=>{
+    const { contract, accounts,contractToken } = this.props;
+    await this.fetchUrl();
+    console.log(this.state.ans_url)
+    const string1 = this.state.ans_url.split("/d/");
+    console.log(string1);
+    const string2 = string1[1].split("/edit");
+    this.setState({ Id: string2[0] });
+    console.log(
+      this.state.Id.localeCompare(
+        "1PzHjYf1ayXuVgMGMMYTWrft8zoR50Ner-tiIcL6911g"
+      )
+    );
+    console.log(this.state.Id);
+    const options = {
+      apiKey: "AIzaSyBRr22JbJlVXmpbAkliWkZ6YfzgPbiZID0",
+      sheetId: this.state.Id,
+      sheetNumber: 1,
+      sheetName: "Sheet1", // if sheetName is supplied, this will take precedence over sheetNumber
+      returnAllResults: false,
+    };
+    
+    var studentAnswer = [];
+   
+    
+    await GSheetReader(
+      options,
+      (results) => {
+        
+          //continue 6422
+        
+        console.log(results)
+        console.log(this.state.stdResp)
+        
+        
+        for (var i = 1; i <= this.state.noOfQuest; i++) {
+          
+          var answer1=results[0][i]
+          console.log(answer1)
+          var lengthOfSR= Object.keys(this.state.stdResp[0]).length - this.state.noOfQuest +i -1
+          console.log(lengthOfSR)
+
+          for(var j = 0; j<this.state.stdResp.length; j ++){
+            console.log(lengthOfSR)
+            console.log(this.state.stdResp[j])
+            console.log(this.state.stdResp[j][Object.keys(this.state.stdResp[0])[lengthOfSR]])
+            studentAnswer.push(this.state.stdResp[j][Object.keys(this.state.stdResp[0])[lengthOfSR]])
+            
+
+
+          }
+
+          console.log(studentAnswer)
+          axios.post(`http://localhost:3001/uploadModel`, { answer: answer1, studentAnswer: studentAnswer }) .then(res => {
+        console.log(res);
+        console.log(res.data);
+      })
+
+      axios.get('http://localhost:3001/bert') .then(res => {
+        console.log(res.data)
+        
+      })
+
+        }
+
+      },
+      (error) => {
+        console.log(error);
+      }
+    );
+
+
+
+
   };
 
   fetchScore = async () => {
@@ -74,10 +173,11 @@ class Announcement extends React.Component {
         
           
           // this.sleep(5000);
+        this.setState({stdResp:results})
         for (var i = 0; i < results.length; i++) {
           console.log(results[i].Address);
           console.log(results[i].Score.split("/")[0]);
-          addressStudent.push(results[i].Address);
+          addressStudent.push(results[i].Address.toString());
           marksStudent.push(parseInt(results[i].Score.split("/")[0]));
           //give tokens
           
@@ -88,20 +188,23 @@ class Announcement extends React.Component {
         console.log(error);
       }
     );
-    // const gasEstimate2 = await contract.methods.inputMrks(addressStudent, this.props.id, marksStudent).estimateGas({ from: managerAdd });
-    // await contract.methods
-    //   .inputMrks(addressStudent, this.props.id, marksStudent)
-    //   .send({ from: accounts[0],gasPrice: this.props.gasPrice, gas: gasEstimate2 },(err, res) => {
-    //     if (err) {
-    //       console.log(err);
-    //       return
-    //     }
-    //     console.log("Hash transaction: " + res);
-    // });
+
+    console.log(addressStudent,marksStudent);
+    const gasEstimate2 = await contract.methods.inputMrks(addressStudent, this.props.id, marksStudent).estimateGas({ from: managerAdd });
+    console.log("Gas estimate for input marks: ",gasEstimate2);
     
-    // await contract.methods
-    //   .inputMrks(addressStudent, this.props.id, marksStudent)
-    //   .send({ from: accounts[0]});
+    await contract.methods
+      .inputMrks(addressStudent, this.props.id, marksStudent)
+      .send({ from: managerAdd,gasPrice: this.props.gasPrice, gas: gasEstimate2 },(err, res) => {
+        if (err) {
+          alert("Error");
+          console.log(err);
+          return
+        }
+        console.log("Hash transaction: " + res);
+    });
+    
+    
 
     
     //token giving
@@ -198,6 +301,7 @@ class Announcement extends React.Component {
           {this.props.feedback ? (
             <Button onClick={this.fetchRatings}>Collect Feedback</Button>
           ) : null}
+          <Button onClick={this.fetchSubjectScore}>Grade SQ</Button>
         </div>
       </>
     );
