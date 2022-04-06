@@ -128,7 +128,7 @@ class Announcement extends React.Component {
 
       axios.get('http://localhost:3001/bert') .then(res => {
         console.log(res.data)
-        
+
       })
 
         }
@@ -188,22 +188,16 @@ class Announcement extends React.Component {
         console.log(error);
       }
     );
-
-    console.log(addressStudent,marksStudent);
     const gasEstimate2 = await contract.methods.inputMrks(addressStudent, this.props.id, marksStudent).estimateGas({ from: managerAdd });
-    console.log("Gas estimate for input marks: ",gasEstimate2);
-    
     await contract.methods
       .inputMrks(addressStudent, this.props.id, marksStudent)
-      .send({ from: managerAdd,gasPrice: this.props.gasPrice, gas: gasEstimate2 },(err, res) => {
+      .send({ from: accounts[0],gasPrice: this.props.gasPrice, gas: gasEstimate2 },(err, res) => {
         if (err) {
-          alert("Error");
           console.log(err);
           return
         }
         console.log("Hash transaction: " + res);
     });
-    
     
 
     
@@ -223,6 +217,7 @@ class Announcement extends React.Component {
           console.log("Hash transaction: " + res);
       });
     }
+    alert("Graded successfully!");
     
   };
   sleep = (milliseconds) => {
@@ -288,13 +283,14 @@ class Announcement extends React.Component {
         }
         console.log("Hash transaction: " + res);
     });
+    alert("Feedback collected successfully!");
   };
   render() {
     return (
       <>
         <div className="border pt-4 px-4 pb-5">
           <p>{this.props.title}</p>
-          <p>{this.props.link}</p>
+          <p><a href={this.props.link}>{this.props.link}</a></p>
           {this.props.grade ? (
             <Button onClick={this.fetchScore}>Grade</Button>
           ) : null}
