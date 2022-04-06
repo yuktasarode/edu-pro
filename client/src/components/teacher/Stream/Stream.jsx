@@ -27,7 +27,8 @@ class Stream extends React.Component {
       course_teacher: null,
       fetchDone: false,
       ans_link:null,
-      sub_Quest:null
+      sub_Quest:null,
+      sub_QMrks:null
     };
   }
 
@@ -211,6 +212,16 @@ class Stream extends React.Component {
         .child(obj.title)
         .child("NoOfQuest")
         .set(this.state.sub_Quest);
+
+      fire
+        .database()
+        .ref()
+        .child("Courses")
+        .child(this.state.course_id)
+        .child("quizzes")
+        .child(obj.title)
+        .child("SubjMrks")
+        .set(this.state.sub_QMrks);
 
       fire
         .database()
@@ -433,7 +444,7 @@ class Stream extends React.Component {
                       </Typography>
                       <TextField
                         id="standard-basic"
-                        label="Enter Title"
+                        label="Enter Number of Questions"
                         variant="standard"
                         value={this.state.sub_Quest}
                         onChange={(event) =>
@@ -442,6 +453,27 @@ class Stream extends React.Component {
                         fullWidth
                       />
                     </div>
+
+                    <div>
+                      <Typography
+                        align="center"
+                        style={{ fontSize: 15, marginBottom: 10 }}
+                      >
+                        Enter marks of subjective question
+                      </Typography>
+                      <TextField
+                        id="standard-basic"
+                        label="Enter marks"
+                        variant="standard"
+                        value={this.state.sub_QMrks}
+                        onChange={(event) =>
+                          this.setState({ sub_QMrks: event.target.value })
+                        }
+                        fullWidth
+                      />
+                    </div>
+
+
 
 
                     <div>

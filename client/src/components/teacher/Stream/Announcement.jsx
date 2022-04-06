@@ -15,7 +15,9 @@ class Announcement extends React.Component {
       feedback_url: "",
       noOfQuest:"",
       ans_url:"",
-      stdResp:[]
+      stdResp:[],
+      SubjMrks:"",
+      returnResult:[]
     };
   }
 
@@ -48,6 +50,15 @@ class Announcement extends React.Component {
           .child("quizzes")
           .child(this.props.title)
           .child("NoOfQuest")
+          .val(),
+      });
+      this.setState({
+        SubjMrks: userSnapshot
+          .child("Courses")
+          .child(this.props.id)
+          .child("quizzes")
+          .child(this.props.title)
+          .child("SubjMrks")
           .val(),
       });
     });
@@ -102,7 +113,7 @@ class Announcement extends React.Component {
         console.log(results)
         console.log(this.state.stdResp)
         
-        
+        var returnResult2=[]
         for (var i = 1; i <= this.state.noOfQuest; i++) {
           
           var answer1=results[0][i]
@@ -122,17 +133,48 @@ class Announcement extends React.Component {
 
           console.log(studentAnswer)
           axios.post(`http://localhost:3001/uploadModel`, { answer: answer1, studentAnswer: studentAnswer }) .then(res => {
-        console.log(res);
-        console.log(res.data);
-      })
+          console.log(res);
+          console.log(res.data);})
 
-      axios.get('http://localhost:3001/bert') .then(res => {
-        console.log(res.data)
+          axios.get('http://localhost:3001/bert') .then(res => {
+          console.log(res.data)
+          var scores = res.data.split("\r\n")
+          
+          console.log(typeof(scores))
+          scores.pop()
+          console.log(scores)
+          var baseMrk=this.state.SubjMrks/4;
 
-      })
+          for(var i =0;i<scores.length;i++){
 
-        }
+          
+            if(parseFloat(scores[i])>=0.95 ){
+              returnResult2[i]+=4 * baseMrk
+              
+            }
+            else if(parseFloat(scores[i])>=0.80){
+              returnResult2[i]+=3 * baseMrk
+            }
+            else if(parseFloat(scores[i])>=0.65){
+              returnResult2[i]+=2 * baseMrk
+            }
+            else if(parseFloat(scores[i])>=0.2){
+              returnResult2[i]+=baseMrk
+            }
+            else{
+              returnResult2[i]+=0
+            }
+          
+          }
+          
+          console.log(scores)
 
+
+          })
+
+        } //for loop closes
+
+        this.setState({returnResult:returnResult2});
       },
       (error) => {
         console.log(error);
@@ -166,7 +208,8 @@ class Announcement extends React.Component {
     var marksStudent = [];
     const manager = await contractToken.methods._deployer().call();
     var managerAdd=manager.toString();
-    
+   
+    // this.sleep(60000);
     await GSheetReader(
       options,
       (results) => {
@@ -174,15 +217,22 @@ class Announcement extends React.Component {
           
           // this.sleep(5000);
         this.setState({stdResp:results})
-        for (var i = 0; i < results.length; i++) {
-          console.log(results[i].Address);
-          console.log(results[i].Score.split("/")[0]);
-          addressStudent.push(results[i].Address.toString());
-          marksStudent.push(parseInt(results[i].Score.split("/")[0]));
-          //give tokens
-          
+        console.log(this.state.returnResult)
+        this.fetchSubjectScore().then(()=>{
+        
+          this.sleep(80000);
+          for (var i = 0; i < results.length; i++) {
+            console.log(results[i].Address);
+            console.log(results[i].Score.split("/")[0]);
+            addressStudent.push(results[i].Address.toString());
+            marksStudent.push(parseInt(results[i].Score.split("/")[0])+this.state.returnResult[i]);
+            //give tokens
+            console.log(marksStudent[i])
+            
 
-        }
+          }
+          console.log(marksStudent)
+        });
       },
       (error) => {
         console.log(error);

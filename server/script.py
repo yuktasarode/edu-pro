@@ -45,7 +45,8 @@ def process_bert_similarity():
 			highest_score_index = i
 
 	most_similar_document = documents[highest_score_index]
-	print("Scores",scores)
+	for x in scores:
+		print(x)
 	# print("Most similar document by BERT with the score:", most_similar_document, highest_score)
  	
 
