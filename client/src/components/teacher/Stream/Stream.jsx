@@ -26,9 +26,9 @@ class Stream extends React.Component {
       course_title: null,
       course_teacher: null,
       fetchDone: false,
-      ans_link:null,
-      sub_Quest:null,
-      sub_QMrks:null
+      ans_link: null,
+      sub_Quest: null,
+      sub_QMrks: null,
     };
   }
 
@@ -156,7 +156,6 @@ class Stream extends React.Component {
       title: this.state.title,
       link: this.state.link,
       res_link: this.state.res_link,
-      
     };
     const announcement = {
       title: this.state.title,
@@ -202,7 +201,7 @@ class Stream extends React.Component {
         .child(obj.title)
         .child("AnswerLink")
         .set(this.state.ans_link);
-      
+
       fire
         .database()
         .ref()
@@ -324,7 +323,7 @@ class Stream extends React.Component {
         .child(announcement.title)
         .child("isGrade")
         .set(false);
-        fire
+      fire
         .database()
         .ref()
         .child("Courses")
@@ -333,7 +332,7 @@ class Stream extends React.Component {
         .child(announcement.title)
         .child("isFeedback")
         .set(true);
-       
+
       fire
         .database()
         .ref()
@@ -473,9 +472,6 @@ class Stream extends React.Component {
                       />
                     </div>
 
-
-
-
                     <div>
                       <Typography
                         align="center"
@@ -531,7 +527,6 @@ class Stream extends React.Component {
                         fullWidth
                       />
                     </div>
-
 
                     <div style={{ marginTop: 20 }}>
                       <Button variant="secondary" type="submit">
@@ -616,8 +611,7 @@ class Stream extends React.Component {
                       contract={this.props.contract}
                       accounts={this.props.accounts}
                       contractToken={this.props.contractToken}
-                      gasPrice = {this.props.gasPrice}
-                      
+                      gasPrice={this.props.gasPrice}
                     />
                   ))
                 : null}

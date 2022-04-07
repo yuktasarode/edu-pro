@@ -13,11 +13,11 @@ class Announcement extends React.Component {
       Id: "",
       quiz_url: "",
       feedback_url: "",
-      noOfQuest:"",
-      ans_url:"",
-      stdResp:[],
-      SubjMrks:"",
-      returnResult:[]
+      noOfQuest: "",
+      ans_url: "",
+      stdResp: [],
+      SubjMrks: "",
+      returnResult: [],
     };
   }
 
@@ -33,7 +33,7 @@ class Announcement extends React.Component {
           .child("ResultLink")
           .val(),
       });
-      
+
       this.setState({
         ans_url: userSnapshot
           .child("Courses")
@@ -79,100 +79,88 @@ class Announcement extends React.Component {
     });
   };
 
-  forlooptrial = async(flagRes)=>{
-    const returnResult2=new Array(this.state.stdResp.length).fill(0)
-    
-    var dummy=[];
-    for (var i = 1; i <= this.state.noOfQuest; i++) {
-      dummy[i-1]=i
+  forlooptrial = async (flagRes) => {
+    const returnResult2 = new Array(this.state.stdResp.length).fill(0);
+
+    for (let k = 1; k <= this.state.noOfQuest; k++) {
+      var studentAnswer = [];
+      var answer1 = flagRes[0][k];
+      console.log(k, answer1);
+      var lengthOfSR =
+        Object.keys(this.state.stdResp[0]).length -
+        this.state.noOfQuest +
+        k -
+        1;
+      // console.log(lengthOfSR);
+
+      for (var j = 0; j < this.state.stdResp.length; j++) {
+        // console.log(lengthOfSR)
+        // console.log(this.state.stdResp[j])
+        // console.log(this.state.stdResp[j][Object.keys(this.state.stdResp[0])[lengthOfSR]])
+        studentAnswer.push(
+          this.state.stdResp[j][Object.keys(this.state.stdResp[0])[lengthOfSR]]
+        );
+      }
+
+      // console.log(studentAnswer);
+      let res = await axios.post(`http://localhost:3001/uploadModel`, {
+        answer: answer1,
+        studentAnswer: studentAnswer,
+      });
+      console.log("after first axios");
+      // res = await axios.get('http://localhost:3001/bert')
+      // console.log("after second axios");
+      //console.log(res.data);
+      var scores = res.data.split("\r\n");
+
+      //  console.log(typeof scores);
+      scores.pop();
+      console.log("Scores of subjective answers", scores);
+      var baseMrk = this.state.SubjMrks / 4;
+      //console.log(baseMrk);
+
+      for (let i = 0; i < scores.length; i++) {
+        if (parseFloat(scores[i]) >= 0.95) {
+          returnResult2[i] += 4 * baseMrk;
+        } else if (parseFloat(scores[i]) >= 0.8) {
+          returnResult2[i] += 3 * baseMrk;
+        } else if (parseFloat(scores[i]) >= 0.65) {
+          returnResult2[i] += 2 * baseMrk;
+        } else if (parseFloat(scores[i]) >= 0.2) {
+          returnResult2[i] += baseMrk;
+        } else {
+          returnResult2[i] += 0;
+        }
+        // console.log(returnResult2[i]);
+      }
+
+      console.log("Marks of ith qs", returnResult2);
     }
 
-    const promises = dummy.map(async i => {
-      var studentAnswer = [];
-      var answer1=flagRes[0][i]
-      console.log(i,answer1)
-      var lengthOfSR= Object.keys(this.state.stdResp[0]).length - this.state.noOfQuest +i -1
-      console.log(lengthOfSR)
+    // const mapRespA = await Promise.all(promises)
+    // console.log(mapRespA)
+    // for (var i = 0; i < promises.length; i++) {
+    //   await promises[i];
+    //   console.log(promises[i]);
+    // }
 
-      for(var j = 0; j<this.state.stdResp.length; j ++){
-        
-        console.log(lengthOfSR)
-        console.log(this.state.stdResp[j])
-        console.log(this.state.stdResp[j][Object.keys(this.state.stdResp[0])[lengthOfSR]])
-        studentAnswer.push(this.state.stdResp[j][Object.keys(this.state.stdResp[0])[lengthOfSR]])
-        
+    return returnResult2;
+  };
 
-
-      }
-
-      console.log(studentAnswer)
-      let res=await axios.post(`http://localhost:3001/uploadModel`, { answer: answer1, studentAnswer: studentAnswer });
-      console.log("after first axios")
-      // res = await axios.get('http://localhost:3001/bert') 
-      console.log("after second axios")
-      console.log(res.data)
-      var scores = res.data.split("\r\n")
-      
-      console.log(typeof(scores))
-      scores.pop()
-      console.log(scores)
-      var baseMrk=this.state.SubjMrks/4;
-      console.log(baseMrk);
-
-
-      for(var i =0;i<scores.length;i++){
-
-      
-        if(parseFloat(scores[i])>=0.95 ){
-          returnResult2[i]+=4 * baseMrk
-          
-          
-        }
-        else if(parseFloat(scores[i])>=0.80){
-          returnResult2[i]+=3 * baseMrk
-        }
-        else if(parseFloat(scores[i])>=0.65){
-          returnResult2[i]+=2 * baseMrk
-        }
-        else if(parseFloat(scores[i])>=0.2){
-          returnResult2[i]+=baseMrk
-        }
-        else{
-          returnResult2[i]+=0
-        }
-        console.log(returnResult2[i])
-      
-      }
-      
-      console.log(scores)
-
-
-      
-      
-      
-    })
-  
-    const mapRespA = await Promise.all(promises)
-    console.log(mapRespA)
-
-    
-    return (returnResult2);
-  }
-
-  fetchSubjectScore = async()=>{
-    const { contract, accounts,contractToken } = this.props;
+  fetchSubjectScore = async () => {
+    const { contract, accounts, contractToken } = this.props;
     await this.fetchUrl();
-    console.log(this.state.ans_url)
+    // console.log(this.state.ans_url);
     const string1 = this.state.ans_url.split("/d/");
-    console.log(string1);
+    // console.log(string1);
     const string2 = string1[1].split("/edit");
     this.setState({ Id: string2[0] });
-    console.log(
-      this.state.Id.localeCompare(
-        "1PzHjYf1ayXuVgMGMMYTWrft8zoR50Ner-tiIcL6911g"
-      )
-    );
-    console.log(this.state.Id);
+    // console.log(
+    //   this.state.Id.localeCompare(
+    //     "1PzHjYf1ayXuVgMGMMYTWrft8zoR50Ner-tiIcL6911g"
+    //   )
+    // );
+    // console.log(this.state.Id);
     const options = {
       apiKey: "AIzaSyBRr22JbJlVXmpbAkliWkZ6YfzgPbiZID0",
       sheetId: this.state.Id,
@@ -180,53 +168,43 @@ class Announcement extends React.Component {
       sheetName: "Sheet1", // if sheetName is supplied, this will take precedence over sheetNumber
       returnAllResults: false,
     };
-    
-    
-   
+
     var flagRes;
     await GSheetReader(
       options,
       async (results) => {
-        
-          //continue 6422
-        
-        flagRes=results;
+        //continue 6422
+
+        flagRes = results;
       },
       (error) => {
         console.log(error);
       }
     );
-      console.log(flagRes)
-        console.log(this.state.stdResp)
-        
-        
-        
-        
-        // 1 2 3 4
-        // a + a + a
-        // b c a
-        console.log(this.state.noOfQuest)
-        //for loop closes
-        const returnResult2=await this.forlooptrial(flagRes)
-        console.log(returnResult2);
-        return (returnResult2);
+    // console.log(flagRes);
+    // console.log(this.state.stdResp);
 
-
-
-
+    // 1 2 3 4
+    // a + a + a
+    // b c a
+    //  console.log(this.state.noOfQuest);
+    //for loop closes
+    const returnResult2 = await this.forlooptrial(flagRes);
+    console.log("Marks of subjective answers", returnResult2);
+    return returnResult2;
   };
 
   fetchScore = async () => {
-    const { contract, accounts,contractToken } = this.props;
+    const { contract, accounts, contractToken } = this.props;
     await this.fetchUrl();
     const string1 = this.state.url.split("/d/");
     const string2 = string1[1].split("/edit");
     this.setState({ Id: string2[0] });
-    console.log(
-      this.state.Id.localeCompare(
-        "1PzHjYf1ayXuVgMGMMYTWrft8zoR50Ner-tiIcL6911g"
-      )
-    );
+    // console.log(
+    //   this.state.Id.localeCompare(
+    //     "1PzHjYf1ayXuVgMGMMYTWrft8zoR50Ner-tiIcL6911g"
+    //   )
+    // );
     const options = {
       apiKey: "AIzaSyBRr22JbJlVXmpbAkliWkZ6YfzgPbiZID0",
       sheetId: this.state.Id,
@@ -237,77 +215,88 @@ class Announcement extends React.Component {
     var addressStudent = [];
     var marksStudent = [];
     const manager = await contractToken.methods._deployer().call();
-    var managerAdd=manager.toString();
-   
+    var managerAdd = manager.toString();
+
     // this.sleep(60000);
     await GSheetReader(
       options,
       async (results) => {
-        
-          
-          // this.sleep(5000);
-        this.setState({stdResp:results})
-        
-        const returnValue =await this.fetchSubjectScore();
-        console.log(returnValue);
+        // this.sleep(5000);
+        this.setState({ stdResp: results });
+
+        const returnValue = await this.fetchSubjectScore();
+        // console.log(returnValue);
         // this.setState({returnResult:returnValue});
 
         for (var i = 0; i < results.length; i++) {
-          console.log(results[i].Address);
-          console.log(results[i].Score.split("/")[0]);
+          // console.log(results[i].Address);
+          // console.log(results[i].Score.split("/")[0]);
           addressStudent.push(results[i].Address.toString());
-          marksStudent.push(parseInt(Math.round(results[i].Score.split("/")[0])+returnValue[i]));
+          marksStudent.push(
+            parseInt(
+              Math.round(results[i].Score.split("/")[0]) + returnValue[i]
+            )
+          );
           //give tokens
-          console.log(marksStudent[i])
-          
-
+          // console.log(marksStudent[i]);
         }
-        console.log(marksStudent)
+        console.log("Final marks", marksStudent);
 
-        const gasEstimate2 = await contract.methods.inputMrks(addressStudent, this.props.id, marksStudent).estimateGas({ from: managerAdd });
+        const gasEstimate2 = await contract.methods
+          .inputMrks(addressStudent, this.props.id, marksStudent)
+          .estimateGas({ from: managerAdd });
         await contract.methods
           .inputMrks(addressStudent, this.props.id, marksStudent)
-          .send({ from: accounts[0],gasPrice: this.props.gasPrice, gas: gasEstimate2 },(err, res) => {
-            if (err) {
-              console.log(err);
-              return
+          .send(
+            {
+              from: accounts[0],
+              gasPrice: this.props.gasPrice,
+              gas: gasEstimate2,
+            },
+            (err, res) => {
+              if (err) {
+                console.log(err);
+                return;
+              }
+              console.log("Hash transaction: " + res);
             }
-            console.log("Hash transaction: " + res);
-        });
+          );
 
-         //token giving
-      for (var i = 0; i < addressStudent.length; i++) {
-        
-        //give tokens
-        
-        const gasEstimate = await contractToken.methods.transfer(addressStudent[i], parseInt(marksStudent[i])).estimateGas({ from: managerAdd });
-        
-        await contractToken.methods
-          .transfer(addressStudent[i], parseInt(marksStudent[i])).send({ from: managerAdd, gasPrice: this.props.gasPrice, gas: gasEstimate  },(err, res) => {
-            if (err) {
-              console.log(err);
-              return
-            }
-            console.log("Hash transaction: " + res);
-        });
-      }
-      alert("Graded successfully!");
-    
+        //token giving
+        for (var i = 0; i < addressStudent.length; i++) {
+          //give tokens
 
-        },
-        (error) => {
-          console.log(error);
+          const gasEstimate = await contractToken.methods
+            .transfer(addressStudent[i], parseInt(marksStudent[i]))
+            .estimateGas({ from: managerAdd });
+
+          await contractToken.methods
+            .transfer(addressStudent[i], parseInt(marksStudent[i]))
+            .send(
+              {
+                from: managerAdd,
+                gasPrice: this.props.gasPrice,
+                gas: gasEstimate,
+              },
+              (err, res) => {
+                if (err) {
+                  console.log(err);
+                  return;
+                }
+                console.log("Hash transaction: " + res);
+              }
+            );
         }
+        alert("Graded successfully!");
+      },
+      (error) => {
+        console.log(error);
+      }
     );
-    
-    
-
-    
-   
   };
   sleep = (milliseconds) => {
-    return new Promise(resolve => setTimeout(resolve, milliseconds))
-  }
+    return new Promise((resolve) => setTimeout(resolve, milliseconds));
+  };
   fetchRatings = async () => {
     const { contract, accounts, contractToken } = this.props;
     var teacher_rating = 0;
@@ -315,13 +304,12 @@ class Announcement extends React.Component {
     const string1 = this.state.url.split("/d/");
     const string2 = string1[1].split("/edit");
     this.setState({ Id: string2[0] });
-    console.log(
-      this.state.Id.localeCompare(
-        "1PzHjYf1ayXuVgMGMMYTWrft8zoR50Ner-tiIcL6911g"
-      )
-    
-    );
-    console.log(this.state.Id);
+    // console.log(
+    //   this.state.Id.localeCompare(
+    //     "1PzHjYf1ayXuVgMGMMYTWrft8zoR50Ner-tiIcL6911g"
+    //   )
+    // );
+    // console.log(this.state.Id);
     const options = {
       apiKey: "AIzaSyBRr22JbJlVXmpbAkliWkZ6YfzgPbiZID0",
       sheetId: this.state.Id,
@@ -353,21 +341,27 @@ class Announcement extends React.Component {
       }
     );
     const manager = await contractToken.methods._deployer().call();
-    var managerAdd=manager.toString();
+    var managerAdd = manager.toString();
     console.log(managerAdd);
     // const web3 = await getWeb3();
     // const gasPrice = await web3.eth.getGasPrice();
-    const gasEstimate = await contractToken.methods.transfer(accounts[0], parseInt(teacher_rating)).estimateGas({ from: managerAdd });
+    const gasEstimate = await contractToken.methods
+      .transfer(accounts[0], parseInt(teacher_rating))
+      .estimateGas({ from: managerAdd });
     this.sleep(5000);
     // console.log(gasPrice,gasEstimate);
     await contractToken.methods
-      .transfer(accounts[0], parseInt(teacher_rating)).send({ from: managerAdd, gasPrice: this.props.gasPrice, gas: gasEstimate  },(err, res) => {
-        if (err) {
-          console.log(err);
-          return
+      .transfer(accounts[0], parseInt(teacher_rating))
+      .send(
+        { from: managerAdd, gasPrice: this.props.gasPrice, gas: gasEstimate },
+        (err, res) => {
+          if (err) {
+            console.log(err);
+            return;
+          }
+          console.log("Hash transaction: " + res);
         }
-        console.log("Hash transaction: " + res);
-    });
+      );
     alert("Feedback collected successfully!");
   };
   render() {
@@ -375,14 +369,15 @@ class Announcement extends React.Component {
       <>
         <div className="border pt-4 px-4 pb-5">
           <p>{this.props.title}</p>
-          <p><a href={this.props.link}>{this.props.link}</a></p>
+          <p>
+            <a href={this.props.link}>{this.props.link}</a>
+          </p>
           {this.props.grade ? (
             <Button onClick={this.fetchScore}>Grade</Button>
           ) : null}
           {this.props.feedback ? (
             <Button onClick={this.fetchRatings}>Collect Feedback</Button>
           ) : null}
-          <Button onClick={this.fetchSubjectScore}>Grade SQ</Button>
         </div>
       </>
     );
