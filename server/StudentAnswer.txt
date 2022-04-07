@@ -1,2 +1,2 @@
-My name is yukta. I am 22 year old studying in vjti. I love painting.
-My name is Yukta Sarode. I am a student in VJTI, studying IT. I am 22 yrs old. Au revoir.
+Depth First Search(DFS), Breadth First Search(BFS), A*, Uniform Cost Search, Hill-climbing, Beam, Best First Search
+Various search algorithms in AI are classified into informed and uninformed search. Uninformed search algorithms include Breadth First Search, Depth First Search, Depth Limited Search, Bidrectional Search. Informed algorithms include A* search and Best First Search

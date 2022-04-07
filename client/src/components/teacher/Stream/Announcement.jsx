@@ -79,6 +79,86 @@ class Announcement extends React.Component {
     });
   };
 
+  forlooptrial = async(flagRes)=>{
+    const returnResult2=new Array(this.state.stdResp.length).fill(0)
+    
+    var dummy=[];
+    for (var i = 1; i <= this.state.noOfQuest; i++) {
+      dummy[i-1]=i
+    }
+
+    const promises = dummy.map(async i => {
+      var studentAnswer = [];
+      var answer1=flagRes[0][i]
+      console.log(i,answer1)
+      var lengthOfSR= Object.keys(this.state.stdResp[0]).length - this.state.noOfQuest +i -1
+      console.log(lengthOfSR)
+
+      for(var j = 0; j<this.state.stdResp.length; j ++){
+        
+        console.log(lengthOfSR)
+        console.log(this.state.stdResp[j])
+        console.log(this.state.stdResp[j][Object.keys(this.state.stdResp[0])[lengthOfSR]])
+        studentAnswer.push(this.state.stdResp[j][Object.keys(this.state.stdResp[0])[lengthOfSR]])
+        
+
+
+      }
+
+      console.log(studentAnswer)
+      let res=await axios.post(`http://localhost:3001/uploadModel`, { answer: answer1, studentAnswer: studentAnswer });
+      console.log("after first axios")
+      // res = await axios.get('http://localhost:3001/bert') 
+      console.log("after second axios")
+      console.log(res.data)
+      var scores = res.data.split("\r\n")
+      
+      console.log(typeof(scores))
+      scores.pop()
+      console.log(scores)
+      var baseMrk=this.state.SubjMrks/4;
+      console.log(baseMrk);
+
+
+      for(var i =0;i<scores.length;i++){
+
+      
+        if(parseFloat(scores[i])>=0.95 ){
+          returnResult2[i]+=4 * baseMrk
+          
+          
+        }
+        else if(parseFloat(scores[i])>=0.80){
+          returnResult2[i]+=3 * baseMrk
+        }
+        else if(parseFloat(scores[i])>=0.65){
+          returnResult2[i]+=2 * baseMrk
+        }
+        else if(parseFloat(scores[i])>=0.2){
+          returnResult2[i]+=baseMrk
+        }
+        else{
+          returnResult2[i]+=0
+        }
+        console.log(returnResult2[i])
+      
+      }
+      
+      console.log(scores)
+
+
+      
+      
+      
+    })
+  
+    const mapRespA = await Promise.all(promises)
+    console.log(mapRespA)
+
+    
+    return (returnResult2);
+  }
+
   fetchSubjectScore = async()=>{
     const { contract, accounts,contractToken } = this.props;
     await this.fetchUrl();
@@ -101,7 +181,7 @@ class Announcement extends React.Component {
       returnAllResults: false,
     };
     
-    var studentAnswer = [];
+    
    
     var flagRes;
     await GSheetReader(
@@ -119,76 +199,15 @@ class Announcement extends React.Component {
       console.log(flagRes)
         console.log(this.state.stdResp)
         
-        const returnResult2=new Array(this.state.stdResp.length).fill(0)
         
-        console.log(returnResult2);
+        
+        
         // 1 2 3 4
         // a + a + a
         // b c a
-
-        for (var i = 1; i <= this.state.noOfQuest; i++) {
-          
-          var answer1=flagRes[0][i]
-          console.log(answer1)
-          var lengthOfSR= Object.keys(this.state.stdResp[0]).length - this.state.noOfQuest +i -1
-          console.log(lengthOfSR)
-
-          for(var j = 0; j<this.state.stdResp.length; j ++){
-            console.log(lengthOfSR)
-            console.log(this.state.stdResp[j])
-            console.log(this.state.stdResp[j][Object.keys(this.state.stdResp[0])[lengthOfSR]])
-            studentAnswer.push(this.state.stdResp[j][Object.keys(this.state.stdResp[0])[lengthOfSR]])
-            
-
-
-          }
-
-          console.log(studentAnswer)
-          let res=await axios.post(`http://localhost:3001/uploadModel`, { answer: answer1, studentAnswer: studentAnswer });
-          console.log("after first axios")
-          res = await axios.get('http://localhost:3001/bert') 
-          console.log("after second axios")
-          console.log(res.data)
-          var scores = res.data.split("\r\n")
-          
-          console.log(typeof(scores))
-          scores.pop()
-          console.log(scores)
-          var baseMrk=this.state.SubjMrks/4;
-          console.log(baseMrk);
-
-
-          for(var i =0;i<scores.length;i++){
-
-          
-            if(parseFloat(scores[i])>=0.95 ){
-              returnResult2[i]+=4 * baseMrk
-              
-              
-            }
-            else if(parseFloat(scores[i])>=0.80){
-              returnResult2[i]+=3 * baseMrk
-            }
-            else if(parseFloat(scores[i])>=0.65){
-              returnResult2[i]+=2 * baseMrk
-            }
-            else if(parseFloat(scores[i])>=0.2){
-              returnResult2[i]+=baseMrk
-            }
-            else{
-              returnResult2[i]+=0
-            }
-            console.log(returnResult2[i])
-          
-          }
-          
-          console.log(scores)
-
-
-          
-          
-
-        } //for loop closes
+        console.log(this.state.noOfQuest)
+        //for loop closes
+        const returnResult2=await this.forlooptrial(flagRes)
         console.log(returnResult2);
         return (returnResult2);
 
@@ -237,7 +256,7 @@ class Announcement extends React.Component {
           console.log(results[i].Address);
           console.log(results[i].Score.split("/")[0]);
           addressStudent.push(results[i].Address.toString());
-          marksStudent.push(parseInt(results[i].Score.split("/")[0])+returnValue[i]);
+          marksStudent.push(parseInt(Math.round(results[i].Score.split("/")[0])+returnValue[i]));
           //give tokens
           console.log(marksStudent[i])
           

@@ -1,1 +1,1 @@
-My name is Yukta Sarode. I am a student in VJTI, studying IT. I am 22 yrs old
+There are many types of search algorithms, the two basic types are informed and uninformed. Uninformed search is also called Blind search. The types of uninformed search are Depth First Search , Breadth First Search, Uniform Cost Search. The type of informed search are Greedy Search, A* Tree Search, A* Graph Search

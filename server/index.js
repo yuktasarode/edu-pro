@@ -46,7 +46,26 @@ app.post('/uploadModel',(req,res)=>{
     }
     //file written successfully
   })
-  res.send('Uploaded Successfully')
+
+  var dataToSend;
+  // var baseDocument="My name is yukta. I am 22 year old. I am studying in VJTI. I am pursuing Information Technology course. I would get a BTECH degree after graduation.";
+  // var documents=["Yukta is my name. I am studying in VJTI in Information Technology (Btech). My age is 22","I am Priyanshi Gupta from VJTI. I am studying Information Technology from VJTI, I am 22 yr old. My degree is Btech."];
+  
+  // spawn new child process to call the python script
+  const python = spawn('python', ['script.py']);
+  
+  console.log("endpoint")
+  // console.log(python)
+  // sleep(5000)
+  // collect data from script
+    python.stdout.on('data', function (data) {
+   console.log('Pipe data from python script ...');
+   console.log(data.toString());
+   dataToSend = data.toString();
+   res.send(dataToSend)
+  });
+
+  
 });
 
 app.get('/bert',async (req, res)=>{
